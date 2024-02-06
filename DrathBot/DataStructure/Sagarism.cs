@@ -42,6 +42,7 @@ namespace DrathBot.DataStructure
             public ulong GetServerID() { return Program.IsDebug ? TestServer.ServerID : ProdServer.ServerID; }
             public ulong GetQuotesChannel() { return Program.IsDebug ? TestServer.Channels.Quotes : ProdServer.Channels.Quotes; }
             public ulong GetGeneralChannel() { return Program.IsDebug ? TestServer.Channels.General : ProdServer.Channels.General; }
+            public ulong GetSagarUser() { return Program.IsDebug ? Users.TestUser : Users.ProductionUser; }
         }
         public class SagarismUsers
         {

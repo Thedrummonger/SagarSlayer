@@ -21,11 +21,12 @@ namespace DrathBot.DataStructure
                 public static string DefaultResponseFile = Path.Combine(Directories.SagarismData, "DefaultResponses.json");
                 public static string AIData = Path.Combine(Directories.SagarismData, "ChatGPT.json");
                 public static string ImageCensors = Path.Combine(Directories.SagarismData, "ImageCensors.json");
+                public static string FFMPEG = Path.Combine(Directories.SagarismData, "FFMPEG", "ffmpeg.exe");
             }
             public class Directories
             {
                 public static string SagarismData = Path.Combine(AppDataFolder, "Sagarism");
-                public static string SagarismImages = Path.Combine(SagarismData, "images");
+                public static string SagarismSoundClips = Path.Combine(SagarismData, "Sound");
             }
         }
     }

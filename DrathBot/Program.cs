@@ -2,7 +2,9 @@
 using DrathBot.DataStructure;
 using DSharpPlus;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.VoiceNext;
 using SagarSlayer.AI;
+using SagarSlayer.Commands;
 using SagarSlayer.DataStructure;
 using System.Diagnostics;
 
@@ -30,10 +32,13 @@ namespace DrathBot
             _SagarismClient = new MessageHandeling.Sagarism();
             _DiscordBot = new ExtendedDiscordObjects.DiscordBot(_SagarismClient.SagarConfig.DiscordData.GetBotKey());
 
+            _DiscordBot.Client.UseVoiceNext();
+
             //Enable Commands
             var slash = _DiscordBot.Client.UseSlashCommands();
             slash.RegisterCommands<SagarConfigSlashCommands>(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID);
             slash.RegisterCommands<SagarismSlashCommands>();
+            slash.RegisterCommands<SagarTestCommands>(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID);
 
             //Create Listeners
             _DiscordBot.Client.MessageCreated += MessageHandeling.ParseMessage._Client_MessageCreated;

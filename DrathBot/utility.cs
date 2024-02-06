@@ -52,6 +52,18 @@ namespace DrathBot
 
             return [.. allMessages.OrderBy(x => x.Timestamp)];
         }
+        public static Stream ConvertAudioToPcm(string filePath)
+        {
+            var ffmpeg = Process.Start(new ProcessStartInfo
+            {
+                FileName = DrathBot.DataStructure.StaticBotPaths.Sagarism.Files.FFMPEG,
+                Arguments = $@"-i ""{filePath}"" -ac 2 -f s16le -ar 48000 pipe:1",
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            });
+
+            return ffmpeg.StandardOutput.BaseStream;
+        }
     }
 
     public static class Utility

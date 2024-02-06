@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.VoiceNext;
 
 namespace DrathBot.Commands
 {
@@ -21,15 +24,19 @@ namespace DrathBot.Commands
 
         }
 
-        //[SlashCommand("AskAI", "Send a prompt to ChatGPT")]
-        public async Task SetReplyChance(InteractionContext ctx, [Option("Prompt", "AI Prmpt")] string Reply)
+        [SlashCommand("TellSagar", "Say something to Sagar")]
+        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply)
         {
-            //https://www.bytehide.com/blog/chatbot-chatgpt-csharp
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            var Sagar = await Program._DiscordBot.Client.GetUserAsync(Program._SagarismClient.SagarConfig.DiscordData.GetSagarUser());
 
-            var Result = Program._ChatGPTClient.SendMessage(Reply);
+            await ctx.CreateResponseAsync("Sending", true);
 
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(Result));
+            var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
+
+            var builder = await new DiscordMessageBuilder()
+            .WithContent($"{Sagar.Mention}{Reply}")
+            .WithAllowedMentions(new IMention[] { new UserMention(Sagar) })
+            .SendAsync(Channel);
 
         }
     }
