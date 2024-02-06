@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DrathBot.DataStructure
+﻿namespace DrathBot.DataStructure
 {
     public class StaticBotPaths
     {

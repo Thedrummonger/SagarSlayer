@@ -1,10 +1,4 @@
-﻿using DrathBot;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace SagarSlayer.DataStructure
 {
@@ -13,8 +7,8 @@ namespace SagarSlayer.DataStructure
         public class DistinctList<T>
         {
             public event Action ListUpdated;
-            public DistinctList(IEnumerable<T> source, double RefreshPercent) 
-            { 
+            public DistinctList(IEnumerable<T> source, double RefreshPercent)
+            {
                 Source = source.ToList();
                 refreshDec = RefreshPercent;
                 ResetAll();

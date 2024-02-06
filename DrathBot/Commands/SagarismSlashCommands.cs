@@ -1,15 +1,5 @@
 ﻿using DSharpPlus.Entities;
-using DSharpPlus;
 using DSharpPlus.SlashCommands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.VoiceNext;
 
 namespace DrathBot.Commands
 {
@@ -25,19 +15,17 @@ namespace DrathBot.Commands
         }
 
         [SlashCommand("TellSagar", "Say something to Sagar")]
-        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply)
+        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "Should the message Ping Sagar")] bool Ping)
         {
-            var Sagar = await Program._DiscordBot.Client.GetUserAsync(Program._SagarismClient.SagarConfig.DiscordData.GetSagarUser());
-
             await ctx.CreateResponseAsync("Sending", true);
 
+            var Sagar = await Program._DiscordBot.Client.GetUserAsync(Program._SagarismClient.SagarConfig.DiscordData.GetSagarUser());
             var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
+            var builder = new DiscordMessageBuilder();
 
-            var builder = await new DiscordMessageBuilder()
-            .WithContent($"{Sagar.Mention}{Reply}")
-            .WithAllowedMentions(new IMention[] { new UserMention(Sagar) })
-            .SendAsync(Channel);
-
+            if (Ping) { builder.WithAllowedMentions(new IMention[] { new UserMention(Sagar) }).WithContent($"{Sagar.Mention} {Reply}"); }
+            else { builder.WithContent($"{Reply}"); }
+            var Message = await builder.SendAsync(Channel);
         }
     }
 }

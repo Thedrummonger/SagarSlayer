@@ -64,7 +64,8 @@ namespace DrathBot
 
         static void VerifyDataFiles()
         {
-            if (!Directory.Exists(DataStructure.StaticBotPaths.AppDataFolder)){
+            if (!Directory.Exists(DataStructure.StaticBotPaths.AppDataFolder))
+            {
                 Directory.CreateDirectory(DataStructure.StaticBotPaths.AppDataFolder);
             }
         }

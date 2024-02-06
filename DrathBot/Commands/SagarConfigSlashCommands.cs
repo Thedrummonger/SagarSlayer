@@ -1,17 +1,7 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Net;
-using DSharpPlus.CommandsNext;
-using System.Net.Mail;
-using static DrathBot.DataStructure.Sagarism;
-using DrathBot.DataStructure;
 
 namespace DrathBot.Commands
 {
@@ -69,7 +59,7 @@ namespace DrathBot.Commands
         }
 
         [SlashCommand("SetReplyChance", "Sets the chance the bot will reply to Jordan")]
-        public async Task SetReplyChance(InteractionContext ctx, [Option("chance", "Percent Chance")] double Chance) 
+        public async Task SetReplyChance(InteractionContext ctx, [Option("chance", "Percent Chance")] double Chance)
         {
             var Result = Program._SagarismClient.Commands.SetChance((int)Chance);
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
@@ -184,7 +174,7 @@ namespace DrathBot.Commands
             Console.WriteLine($"Got {allMessages.Length} Total Messages");
 
             List<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> SagarQuotes = [];
-            foreach ( var message in allMessages)
+            foreach (var message in allMessages)
             {
                 var NewMessage = DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage.FromDiscordMessage(message);
                 SagarQuotes.Add(NewMessage);

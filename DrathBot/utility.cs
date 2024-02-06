@@ -1,18 +1,13 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
-using static DrathBot.DataStructure.ExtendedDiscordObjects;
 
 namespace DrathBot
 {
@@ -300,12 +295,12 @@ namespace DrathBot
             bool FileError = false;
             if (File.Exists(FilePath))
             {
-                try { result = JsonConvert.DeserializeObject<T>(File.ReadAllText(FilePath)); } 
+                try { result = JsonConvert.DeserializeObject<T>(File.ReadAllText(FilePath)); }
                 catch
                 {
                     Debug.WriteLine($"Failed to Deserialize {FilePath} to {typeof(T)}");
                     FileError = true;
-                    result = Default; 
+                    result = Default;
                 }
             }
             else

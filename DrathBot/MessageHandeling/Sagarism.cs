@@ -1,24 +1,9 @@
 ﻿using DrathBot.DataStructure;
-using DSharpPlus;
 using DSharpPlus.Entities;
-using Newtonsoft.Json;
 using SagarSlayer.DataStructure;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using static DrathBot.DataStructure.Sagarism;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static DrathBot.DataStructure.ExtendedDiscordObjects;
-using System.Globalization;
-using System.Net.Sockets;
-using System.Net;
-using SagarSlayer;
-using System.Net.Mail;
+using static DrathBot.DataStructure.Sagarism;
 
 namespace DrathBot.MessageHandeling
 {
@@ -53,7 +38,7 @@ namespace DrathBot.MessageHandeling
             SagarReplies = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.SagarResponseFile, GetSagarRepliesTemplate(), true);
             DailyQuoteTracking = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
             ImageCensors = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
-            DailyQuoteTimer = new(e =>{ SendDailyQuote(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            DailyQuoteTimer = new(e => { SendDailyQuote(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
 
             SagarQuotes.ListUpdated += () => { Commands.UpdateQuoteCacheFile(); };
             SagarReplies.ListUpdated += () => { Commands.UpdateResponseCacheFile(); };
@@ -168,7 +153,7 @@ namespace DrathBot.MessageHandeling
         private SagarResponse GetDistinctResponse()
         {
             List<int> ValidResponseIndices = [];
-            for(var i = 0; i < SagarReplies.Unused.Count; i++)
+            for (var i = 0; i < SagarReplies.Unused.Count; i++)
             {
                 ValidResponseIndices.AddRange(Enumerable.Repeat(i, SagarReplies.Unused[i].Weight));
             }

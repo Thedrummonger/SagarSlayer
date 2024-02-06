@@ -1,17 +1,10 @@
-﻿using DSharpPlus.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DrathBot.DataStructure
+﻿namespace DrathBot.DataStructure
 {
     public class Sagarism
     {
         public class SagarResponse
         {
-            public SagarResponse(string _Message, int _Weight = 100) 
+            public SagarResponse(string _Message, int _Weight = 100)
             {
                 ID = Guid.NewGuid();
                 Message = _Message;
