@@ -26,6 +26,8 @@ namespace DrathBot.MessageHandeling
 
         public Dictionary<string, SerializeableDiscordMessage> DailyQuoteTracking;
 
+        public CronDebt Debt;
+
         public Sagarism()
         {
             Console.WriteLine("Initializing Sagarism");
@@ -39,6 +41,7 @@ namespace DrathBot.MessageHandeling
             DailyQuoteTracking = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
             ImageCensors = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
             DailyQuoteTimer = new(e => { SendDailyQuote(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            Debt = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.CronDebt, new CronDebt(), true);
 
             SagarQuotes.ListUpdated += () => { Commands.UpdateQuoteCacheFile(); };
             SagarReplies.ListUpdated += () => { Commands.UpdateResponseCacheFile(); };
@@ -282,6 +285,12 @@ namespace DrathBot.MessageHandeling
             if (!Directory.Exists(StaticBotPaths.Sagarism.Directories.SagarismData)) { Directory.CreateDirectory(StaticBotPaths.Sagarism.Directories.SagarismData); }
             try { File.WriteAllText(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, _Parent.DailyQuoteTracking.ToFormattedJson()); }
             catch (Exception ex) { Console.WriteLine($"Failed to write Sagar Daily Quote data\n{ex}"); }
+        }
+        public void UpdateCronData()
+        {
+            if (!Directory.Exists(StaticBotPaths.Sagarism.Directories.SagarismData)) { Directory.CreateDirectory(StaticBotPaths.Sagarism.Directories.SagarismData); }
+            try { File.WriteAllText(StaticBotPaths.Sagarism.Files.CronDebt, _Parent.Debt.ToFormattedJson()); }
+            catch (Exception ex) { Console.WriteLine($"Failed to write Cron Debt data\n{ex}"); }
         }
 
         public DiscordUser[] GetReplyTargets()

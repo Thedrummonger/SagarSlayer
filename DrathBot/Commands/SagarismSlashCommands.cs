@@ -1,5 +1,7 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using SagarSlayer.DataStructure;
 
 namespace DrathBot.Commands
 {
@@ -26,6 +28,57 @@ namespace DrathBot.Commands
             if (Ping) { builder.WithAllowedMentions(new IMention[] { new UserMention(Sagar) }).WithContent($"{Sagar.Mention} {Reply}"); }
             else { builder.WithContent($"{Reply}"); }
             var Message = await builder.SendAsync(Channel);
+        }
+
+        [SlashCommand("PrintChronDebt", "Get Sagars Chron Debt")]
+        public async Task PrintDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type)
+        {
+            string Currency;
+            ulong Quote;
+            switch (type)
+            {
+                case CronDebt.Currency.Cron:
+                    Quote = Program._SagarismClient.Debt.GetCronDebt();
+                    Currency = "Cron";
+                    break;
+                case CronDebt.Currency.Silver:
+                    Quote = Program._SagarismClient.Debt.GetSilverDebt();
+                    Currency = "Silver";
+                    break;
+                default:
+                    Quote = 0;
+                    Currency = "Unknown Currency";
+                    break;
+            }
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Sagar is {Quote} {Currency} in debt"));
+        }
+
+        [SlashCommand("AddCronDebt", "Add the given value to Jordans Cron Debt")]
+        public async Task AddDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type, [Option("Amount", "Amount to add to debt")] long Amount)
+        {
+            ulong DebtAddition = type == CronDebt.Currency.Silver ? (ulong)Amount : (ulong)Amount * CronDebt.SilverConversionRate;
+            ulong Current = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
+            Program._SagarismClient.Debt.UpdateSilverDebt(DebtAddition, ctx.User);
+            Program._SagarismClient.Commands.UpdateCronData();
+            ulong New = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
+            string CurrencyName = type == CronDebt.Currency.Silver ? "Silver" : "Cron";
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, 
+                new DiscordInteractionResponseBuilder().WithContent($"Sagar Debt was updated from {Current} to {New} {CurrencyName}"));
+        }
+
+        [SlashCommand("SetCronDebt", "Sets the value of Jordans Cron Debt")]
+        public async Task SetDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type, [Option("Amount", "Amount to add to debt")] long Amount)
+        {
+            ulong DebtAmount = type == CronDebt.Currency.Silver ? (ulong)Amount : (ulong)Amount * CronDebt.SilverConversionRate;
+            ulong Current = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
+            Program._SagarismClient.Debt.SetSilverDebt(DebtAmount, ctx.User);
+            Program._SagarismClient.Commands.UpdateCronData();
+            ulong New = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
+            string CurrencyName = type == CronDebt.Currency.Silver ? "Silver" : "Cron";
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().WithContent($"Sagar Debt was updated from {Current} to {New} {CurrencyName}"));
         }
     }
 }

@@ -16,6 +16,7 @@
                 public static string AIData = Path.Combine(Directories.SagarismData, "ChatGPT.json");
                 public static string ImageCensors = Path.Combine(Directories.SagarismData, "ImageCensors.json");
                 public static string FFMPEG = Path.Combine(Directories.SagarismData, "FFMPEG", "ffmpeg.exe");
+                public static string CronDebt = Path.Combine(Directories.SagarismData, "CronDebt.json");
             }
             public class Directories
             {
