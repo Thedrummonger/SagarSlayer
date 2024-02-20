@@ -16,6 +16,12 @@ namespace DrathBot.Commands
 
         }
 
+        [SlashCommand("GetUserID", "Gets the discord ID of a user")]
+        public async Task GetUserID(InteractionContext ctx, [Option("User", "User to get the ID of")] DiscordUser user)
+        {
+            await ctx.CreateResponseAsync($"User ID: {user.Id}", true);
+        }
+
         [SlashCommand("TellSagar", "Say something to Sagar")]
         public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "User to Ping (Use Discord ID)")] string UserID = "")
         {
@@ -24,10 +30,9 @@ namespace DrathBot.Commands
             var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
             var builder = new DiscordMessageBuilder();
 
-            bool ValidID = ulong.TryParse(UserID, out var UserIDLong);
             DiscordUser? User = null;
-            if (ValidID) {
-                try { User = await Program._DiscordBot.Client.GetUserAsync(UserIDLong); }
+            if (!string.IsNullOrWhiteSpace(UserID)) {
+                try { User = DiscordUtility.GetUserByIDString(UserID); }
                 catch { await ctx.CreateResponseAsync("Invalid User ID"); return; }
             }
             if (User is not null) { builder.WithAllowedMentions(new IMention[] { new UserMention(User) }).WithContent($"{User.Mention} {Reply}"); }
