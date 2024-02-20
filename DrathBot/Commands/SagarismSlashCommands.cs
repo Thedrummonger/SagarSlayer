@@ -17,15 +17,20 @@ namespace DrathBot.Commands
         }
 
         [SlashCommand("TellSagar", "Say something to Sagar")]
-        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "Should the message Ping Sagar")] bool Ping)
+        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "User to Ping (Use Discord ID)")] string UserID = "")
         {
             await ctx.CreateResponseAsync("Sending", true);
 
-            var Sagar = await Program._DiscordBot.Client.GetUserAsync(Program._SagarismClient.SagarConfig.DiscordData.GetSagarUser());
             var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
             var builder = new DiscordMessageBuilder();
 
-            if (Ping) { builder.WithAllowedMentions(new IMention[] { new UserMention(Sagar) }).WithContent($"{Sagar.Mention} {Reply}"); }
+            bool ValidID = ulong.TryParse(UserID, out var UserIDLong);
+            DiscordUser? User = null;
+            if (ValidID) {
+                try { User = await Program._DiscordBot.Client.GetUserAsync(UserIDLong); }
+                catch { await ctx.CreateResponseAsync("Invalid User ID"); return; }
+            }
+            if (User is not null) { builder.WithAllowedMentions(new IMention[] { new UserMention(User) }).WithContent($"{User.Mention} {Reply}"); }
             else { builder.WithContent($"{Reply}"); }
             var Message = await builder.SendAsync(Channel);
         }
