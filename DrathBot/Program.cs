@@ -61,7 +61,7 @@ namespace DrathBot
             Console.WriteLine($"Bot is Live");
             Console.WriteLine($"Connecting as {_DiscordBot.Client.CurrentUser.Username}({_DiscordBot.Client.CurrentUser.Id})");
             _DiscordBot.BotIsLive = true;
-            _SagarismClient.PrintSagarInitializeData();
+            _SagarismClient.Initialize();
             return Task.CompletedTask;
         }
 

@@ -49,6 +49,11 @@ namespace SagarSlayer.DataStructure
             Cron,
             Silver
         }
+
+        public string GetCronDebtStatus()
+        {
+            return $"{GetSilverDebt()}$ in debt from using Crons on Tuvala";
+        }
     }
     public class ChronDebtTransaction
     {

@@ -47,9 +47,21 @@ namespace DrathBot.MessageHandeling
             SagarReplies.ListUpdated += () => { Commands.UpdateResponseCacheFile(); };
         }
 
-        public async void PrintSagarInitializeData()
+        public async void Initialize()
         {
+            await PrintSagarInitializeData();
+            await UpdateStatus();
+        }
 
+        public async Task UpdateStatus()
+        {
+            if (!Program._DiscordBot.BotIsLive) { return; }
+            DiscordActivity activity = new(Debt.GetCronDebtStatus(), ActivityType.Custom);
+            await Program._DiscordBot.Client.UpdateStatusAsync(activity);
+        }
+
+        public async Task PrintSagarInitializeData()
+        {
             Console.WriteLine($"{SagarQuotes.Source.Count} Sagar Quotes ========");
             Console.WriteLine($"{SagarQuotes.Used.Count} History");
             Console.WriteLine($"{SagarQuotes.Unused.Count} Available");

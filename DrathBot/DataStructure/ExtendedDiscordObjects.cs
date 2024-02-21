@@ -50,22 +50,6 @@ namespace DrathBot.DataStructure
                 return Smessage;
             }
         }
-
-        public enum ActivityType
-        {
-            [ChoiceName("Playing")]
-            playing,
-            //[ChoiceName("Streaming")]
-            //streaming,
-            [ChoiceName("Listening To")]
-            listening,
-            [ChoiceName("Watching")]
-            watching,
-            [ChoiceName("Custom")]
-            custom,
-            [ChoiceName("Competing")]
-            competing
-        }
         public class DiscordBot
         {
             public DiscordBot(string APIKEY)

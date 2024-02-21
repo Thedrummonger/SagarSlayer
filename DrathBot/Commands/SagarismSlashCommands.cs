@@ -101,6 +101,7 @@ namespace DrathBot.Commands
             ulong Current = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
             Program._SagarismClient.Debt.UpdateSilverDebt(DebtAddition, ctx.User);
             Program._SagarismClient.Commands.UpdateCronData();
+            await Program._SagarismClient.UpdateStatus();
             ulong New = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
             string CurrencyName = type == CronDebt.Currency.Silver ? "Silver" : "Cron";
 
@@ -115,6 +116,7 @@ namespace DrathBot.Commands
             ulong Current = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
             Program._SagarismClient.Debt.SetSilverDebt(DebtAmount, ctx.User);
             Program._SagarismClient.Commands.UpdateCronData();
+            await Program._SagarismClient.UpdateStatus();
             ulong New = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
             string CurrencyName = type == CronDebt.Currency.Silver ? "Silver" : "Cron";
 
@@ -133,6 +135,7 @@ namespace DrathBot.Commands
                 return;
             }
             Program._SagarismClient.Commands.UpdateCronData();
+            await Program._SagarismClient.UpdateStatus();
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder()
