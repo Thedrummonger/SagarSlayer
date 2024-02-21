@@ -33,8 +33,12 @@ namespace DrathBot.Commands
 
             DiscordUser? User = null;
             if (!string.IsNullOrWhiteSpace(UserID)) {
-                try { User = DiscordUtility.GetUserByIDString(UserID); }
-                catch { await ctx.CreateResponseAsync("Invalid User ID"); return; }
+                User = DiscordUtility.GetUserByIDString(UserID);
+                if (User is null)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Invalid User ID"));
+                    return;
+                }
             }
             if (User is not null) { builder.WithAllowedMentions(new IMention[] { new UserMention(User) }).WithContent($"{User.Mention} {Reply}"); }
             else { builder.WithContent($"{Reply}"); }
