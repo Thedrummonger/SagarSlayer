@@ -16,11 +16,14 @@ namespace DrathBot
 
         public static bool RunAsLive = false;
 
+        public static readonly Version Version = new Version(1,5,3);
+
         public static ExtendedDiscordObjects.DiscordBot _DiscordBot { get; private set; }
         public static ChatGPTClient _ChatGPTClient { get; private set; }
         public static MessageHandeling.Sagarism _SagarismClient { get; private set; }
         static async Task Main(string[] args)
         {
+            Console.WriteLine($"Version: {Version}");
             Console.WriteLine($"Debug Mode: {IsDebug}");
             //Validate Data Files
             Console.WriteLine($"Validating AppData Directory");

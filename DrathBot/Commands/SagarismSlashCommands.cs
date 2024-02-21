@@ -23,26 +23,52 @@ namespace DrathBot.Commands
             await ctx.CreateResponseAsync($"User ID: {user.Id}", true);
         }
 
-        [SlashCommand("TellSagar", "Say something to Sagar")]
-        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "User to Ping (Use Discord ID)")] string UserID = "")
+        [SlashCommand("TellUser", "Say something in general")]
+        public async Task TellUser(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("User", "User to ping")] DiscordUser? user = null)
         {
             await ctx.CreateResponseAsync("Sending", true);
 
             var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
             var builder = new DiscordMessageBuilder();
-
-            DiscordUser? User = null;
-            if (!string.IsNullOrWhiteSpace(UserID)) {
-                User = DiscordUtility.GetUserByIDString(UserID);
-                if (User is null)
-                {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Invalid User ID"));
-                    return;
-                }
+            string Message = string.Empty;
+            if (user is not null)
+            {
+                builder.WithAllowedMention(new UserMention(user));
+                Message += $"{user.Mention} ";
             }
-            if (User is not null) { builder.WithAllowedMentions(new IMention[] { new UserMention(User) }).WithContent($"{User.Mention} {Reply}"); }
-            else { builder.WithContent($"{Reply}"); }
-            var Message = await builder.SendAsync(Channel);
+            Message += Reply;
+            builder.WithContent(Message);
+            await builder.SendAsync(Channel);
+        }
+
+        [SlashCommand("TellUsers", "'TellUser' but can ping multiple users or users not in this server")]
+        public async Task TellUsers(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "Discord ID to Ping (separate multiple with commas)")] string UserID = "")
+        {
+            await ctx.CreateResponseAsync("Sending", true);
+
+            var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
+            var builder = new DiscordMessageBuilder();
+            string Message = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(UserID))
+            {
+                Console.WriteLine($"ID string Passed [{UserID}]" );
+                var IDs = UserID.TrimSplit(",");
+                List<IMention> mentions = [];
+                foreach(var ID in IDs)
+                {
+                    Console.WriteLine($"ID [{ID}]");
+                    var U = DiscordUtility.GetUserByIDString(ID);
+                    if (U is null) { Console.WriteLine($"Failed to get User"); continue; }
+                    mentions.Add(new UserMention(U));
+                    Message += $"{U.Mention} ";
+                    Console.WriteLine($"Pinging User {U.Username} {U.Mention}");
+                }
+                builder.WithAllowedMentions(mentions);
+            }
+            Message += Reply;
+            builder.WithContent(Message);
+            await builder.SendAsync(Channel);
         }
 
         [SlashCommand("PrintCronDebt", "Get Sagars Cron Debt")]
