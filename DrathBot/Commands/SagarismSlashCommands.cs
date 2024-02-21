@@ -17,16 +17,26 @@ namespace DrathBot.Commands
 
         }
 
+        [SlashCommand("GetUserID", "Gets the discord ID of a user")]
+        public async Task GetUserID(InteractionContext ctx, [Option("User", "User to get the ID of")] DiscordUser user)
+        {
+            await ctx.CreateResponseAsync($"User ID: {user.Id}", true);
+        }
+
         [SlashCommand("TellSagar", "Say something to Sagar")]
-        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "Should the message Ping Sagar")] bool Ping)
+        public async Task TellSagar(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "User to Ping (Use Discord ID)")] string UserID = "")
         {
             await ctx.CreateResponseAsync("Sending", true);
 
-            var Sagar = await Program._DiscordBot.Client.GetUserAsync(Program._SagarismClient.SagarConfig.DiscordData.GetSagarUser());
             var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
             var builder = new DiscordMessageBuilder();
 
-            if (Ping) { builder.WithAllowedMentions(new IMention[] { new UserMention(Sagar) }).WithContent($"{Sagar.Mention} {Reply}"); }
+            DiscordUser? User = null;
+            if (!string.IsNullOrWhiteSpace(UserID)) {
+                try { User = DiscordUtility.GetUserByIDString(UserID); }
+                catch { await ctx.CreateResponseAsync("Invalid User ID"); return; }
+            }
+            if (User is not null) { builder.WithAllowedMentions(new IMention[] { new UserMention(User) }).WithContent($"{User.Mention} {Reply}"); }
             else { builder.WithContent($"{Reply}"); }
             var Message = await builder.SendAsync(Channel);
         }
