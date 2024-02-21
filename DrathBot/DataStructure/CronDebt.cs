@@ -27,6 +27,14 @@ namespace SagarSlayer.DataStructure
             SilverDebt = transaction.NewValue;
             TransactionList.Add(transaction);
         }
+        public ChronDebtTransaction? UndoLastTransaction()
+        {
+            if (TransactionList.Count == 0) { return null; }
+            var LastTransaction = TransactionList.Last();
+            TransactionList.Remove(LastTransaction);
+            SilverDebt = LastTransaction.PreviousValue;
+            return LastTransaction;
+        }
         public ulong GetSilverDebt()
         {
             return SilverDebt;
@@ -44,6 +52,7 @@ namespace SagarSlayer.DataStructure
     }
     public class ChronDebtTransaction
     {
+        public ChronDebtTransaction() {}
         public ChronDebtTransaction(CronDebt parent, ulong SilverAmountAdded, DiscordUser discordUser)
         {
             PreviousValue = parent.SilverDebt;

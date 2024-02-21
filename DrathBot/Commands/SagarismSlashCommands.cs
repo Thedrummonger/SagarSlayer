@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using SagarSlayer.DataStructure;
+using static SagarSlayer.DataStructure.CronDebt;
 
 namespace DrathBot.Commands
 {
@@ -30,7 +31,7 @@ namespace DrathBot.Commands
             var Message = await builder.SendAsync(Channel);
         }
 
-        [SlashCommand("PrintChronDebt", "Get Sagars Chron Debt")]
+        [SlashCommand("PrintCronDebt", "Get Sagars Cron Debt")]
         public async Task PrintDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type)
         {
             string Currency;
@@ -68,7 +69,7 @@ namespace DrathBot.Commands
         }
 
         [SlashCommand("SetCronDebt", "Sets the value of Jordans Cron Debt")]
-        public async Task SetDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type, [Option("Amount", "Amount to add to debt")] long Amount)
+        public async Task SetDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type, [Option("Amount", "Current Debt Value")] long Amount)
         {
             ulong DebtAmount = type == CronDebt.Currency.Silver ? (ulong)Amount : (ulong)Amount * CronDebt.SilverConversionRate;
             ulong Current = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
@@ -79,6 +80,24 @@ namespace DrathBot.Commands
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().WithContent($"Sagar Debt was updated from {Current} to {New} {CurrencyName}"));
+        }
+
+        [SlashCommand("UndoLastTransaction", "Reverts the last Debt Change")]
+        public async Task UndoLastDebtChange(InteractionContext ctx)
+        {
+            var LastTransaction = Program._SagarismClient.Debt.UndoLastTransaction();
+            if (LastTransaction is null)
+            {
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().WithContent($"No transactions exist to undo"));
+                return;
+            }
+            Program._SagarismClient.Commands.UpdateCronData();
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder()
+                .WithContent($"Reverted Transaction adding {LastTransaction.SilverAdded} to {LastTransaction.PreviousValue} resulting in {LastTransaction.NewValue}\n" +
+                $"{LastTransaction.PreviousValue} is now the current value"));
         }
     }
 }
