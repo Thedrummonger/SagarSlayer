@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using DrathBot;
 using DrathBot.DataStructure;
-using DrathBot.MessageHandeling;
+using DrathBot.MessageHandling;
 using Newtonsoft.Json;
 using SagarSlayer.DataStructure; 
 using System.Diagnostics;

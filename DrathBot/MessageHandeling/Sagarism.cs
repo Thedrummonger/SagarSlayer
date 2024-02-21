@@ -1,11 +1,12 @@
 ﻿using DrathBot.DataStructure;
 using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using SagarSlayer.DataStructure;
 using System.Diagnostics;
 using static DrathBot.DataStructure.ExtendedDiscordObjects;
 using static DrathBot.DataStructure.Sagarism;
 
-namespace DrathBot.MessageHandeling
+namespace DrathBot.MessageHandling
 {
 
     public class Sagarism
@@ -50,13 +51,30 @@ namespace DrathBot.MessageHandeling
         public async void Initialize()
         {
             await PrintSagarInitializeData();
-            await UpdateStatus();
+            if (SagarConfig.UserStatus is null) { await SetDebtAsStatus(); }
+            else { await SetStatusFromConfig(); }
         }
 
-        public async Task UpdateStatus()
+        public async Task SetStatus(DiscordActivity activity)
+        {
+            if (!Program._DiscordBot.BotIsLive) { return; }
+            SagarConfig.UserStatus = activity;
+            Commands.UpdateConfigFile();
+            await Program._DiscordBot.Client.UpdateStatusAsync(activity);
+        }
+
+        public async Task SetStatusFromConfig()
+        {
+            if (!Program._DiscordBot.BotIsLive || SagarConfig.UserStatus is null) { return; }
+            await Program._DiscordBot.Client.UpdateStatusAsync(SagarConfig.UserStatus);
+        }
+
+        public async Task SetDebtAsStatus()
         {
             if (!Program._DiscordBot.BotIsLive) { return; }
             DiscordActivity activity = new(Debt.GetCronDebtStatus(), ActivityType.Custom);
+            SagarConfig.UserStatus = null;
+            Commands.UpdateConfigFile();
             await Program._DiscordBot.Client.UpdateStatusAsync(activity);
         }
 

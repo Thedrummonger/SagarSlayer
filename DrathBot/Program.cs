@@ -16,14 +16,11 @@ namespace DrathBot
 
         public static bool RunAsLive = false;
 
-        public static readonly Version Version = new Version(1,5,3);
-
         public static ExtendedDiscordObjects.DiscordBot _DiscordBot { get; private set; }
         public static ChatGPTClient _ChatGPTClient { get; private set; }
-        public static MessageHandeling.Sagarism _SagarismClient { get; private set; }
+        public static MessageHandling.Sagarism _SagarismClient { get; private set; }
         static async Task Main(string[] args)
         {
-            Console.WriteLine($"Version: {Version}");
             Console.WriteLine($"Debug Mode: {IsDebug}");
             //Validate Data Files
             Console.WriteLine($"Validating AppData Directory");
@@ -32,7 +29,7 @@ namespace DrathBot
             //Register Clients
             var OPenAIData = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.AIData, new AI.ChatGPTData(), false);
             _ChatGPTClient = new ChatGPTClient(OPenAIData.APIKey);
-            _SagarismClient = new MessageHandeling.Sagarism();
+            _SagarismClient = new MessageHandling.Sagarism();
             _DiscordBot = new ExtendedDiscordObjects.DiscordBot(_SagarismClient.SagarConfig.DiscordData.GetBotKey());
 
             _DiscordBot.Client.UseVoiceNext();
@@ -44,7 +41,7 @@ namespace DrathBot
             slash.RegisterCommands<SagarTestCommands>(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID);
 
             //Create Listeners
-            _DiscordBot.Client.MessageCreated += MessageHandeling.ParseMessage._Client_MessageCreated;
+            _DiscordBot.Client.MessageCreated += MessageHandling.ParseMessage._Client_MessageCreated;
 
             //Connect Discord Client
             Console.WriteLine($"Initializing Discord Client");

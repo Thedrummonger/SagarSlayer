@@ -1,4 +1,6 @@
-﻿namespace DrathBot.DataStructure
+﻿using DSharpPlus.Entities;
+
+namespace DrathBot.DataStructure
 {
     public class Sagarism
     {
@@ -21,6 +23,7 @@
             public double ReplyChance = 0.90;
             public bool ReduceDuplicateResponses = true;
             public bool ReduceDuplicateQuotes = true;
+            public DiscordActivity? UserStatus;
             public SagarBotData DiscordData;
         }
 

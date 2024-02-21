@@ -205,12 +205,16 @@ namespace DrathBot.Commands
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
         }
 
-        [SlashCommand("setactivity", "Sets the bots activity")]
+        [SlashCommand("SetActivity", "Sets the bots activity")]
         private async Task setactivity(InteractionContext ctx, [Option("type", "Activity Type")] ActivityType type, [Option("name", "Activity Name")] string name)
         {
-            DiscordActivity activity = new DiscordActivity(name, type);
-
-            await Program._DiscordBot.Client.UpdateStatusAsync(activity);
+            await Program._SagarismClient.SetStatus(new DiscordActivity(name, type));
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Status updated"));
+        }
+        [SlashCommand("SetActivityCronDebt", "Shows the current debt as the activity")]
+        private async Task setactivityCronDebt(InteractionContext ctx)
+        {
+            await Program._SagarismClient.SetDebtAsStatus();
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Status updated"));
         }
 

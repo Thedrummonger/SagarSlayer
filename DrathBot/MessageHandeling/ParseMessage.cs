@@ -1,7 +1,7 @@
 ﻿using DrathBot.DataStructure;
 using DSharpPlus;
 
-namespace DrathBot.MessageHandeling
+namespace DrathBot.MessageHandling
 {
     internal class ParseMessage
     {
@@ -9,11 +9,11 @@ namespace DrathBot.MessageHandeling
         {
             if (args.Author.IsCurrent) { return Task.CompletedTask; }
 
-            Console.WriteLine($"Message Recieved\n{args.Author}\n{args.Guild}\n{args.Channel}\n{args.Message}");
+            Console.WriteLine($"Message Received\n{args.Author}\n{args.Guild}\n{args.Channel}\n{args.Message}");
 
             if (args.Author.IsBot) { return Task.CompletedTask; }
 
-            MessageHandeling.ParseMessage.Parse(new ExtendedDiscordObjects.RecievedMessage(args));
+            Parse(new ExtendedDiscordObjects.RecievedMessage(args));
 
             return Task.CompletedTask;
         }
