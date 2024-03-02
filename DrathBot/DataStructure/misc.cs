@@ -39,7 +39,7 @@ namespace SagarSlayer.DataStructure
                 Used.Add(Candidate);
                 Unused.RemoveAt(Index);
                 RefreshOldest();
-                if (ListUpdated is not null) { ListUpdated(); }
+                ListUpdated?.Invoke();
                 return Candidate;
             }
 
@@ -48,7 +48,7 @@ namespace SagarSlayer.DataStructure
                 Source.Add(input);
                 Unused.Add(input);
                 RefreshOldest();
-                if (ListUpdated is not null) { ListUpdated(); }
+                ListUpdated?.Invoke();
             }
 
             public void Remove(T target)
@@ -57,7 +57,7 @@ namespace SagarSlayer.DataStructure
                 Unused.Remove(target);
                 Used.Remove(target);
                 RefreshOldest();
-                if (ListUpdated is not null) { ListUpdated(); }
+                ListUpdated?.Invoke();
             }
 
             public void ResetAll()
@@ -65,7 +65,7 @@ namespace SagarSlayer.DataStructure
                 Unused.Clear();
                 Used.Clear();
                 Unused = new List<T>(Source);
-                if (ListUpdated is not null) { ListUpdated(); }
+                ListUpdated?.Invoke();
             }
 
             public T SetMessageUnused(int Index)
@@ -74,8 +74,47 @@ namespace SagarSlayer.DataStructure
                 Unused.Add(Candidate);
                 Used.RemoveAt(Index);
                 RefreshOldest();
-                if (ListUpdated is not null) { ListUpdated(); }
+                ListUpdated?.Invoke();
                 return Candidate;
+            }
+            public T[] SetMessagesUnused(IEnumerable<int> Indexes)
+            {
+                List<T> Candidates = new List<T>();
+                foreach (int Index in Indexes)
+                {
+                    T Candidate = Used[Index];
+                    Candidates.Add(Candidate);
+                    Unused.Add(Candidate);
+                    Used.RemoveAt(Index);
+                }
+                RefreshOldest();
+                ListUpdated?.Invoke();
+                return [.. Candidates];
+            }
+
+            public T SetMessageUsed(int Index)
+            {
+                T Candidate = Unused[Index];
+                Used.Add(Candidate);
+                Unused.RemoveAt(Index);
+                RefreshOldest();
+                ListUpdated?.Invoke();
+                return Candidate;
+            }
+
+            public T[] SetMessagesUsed(IEnumerable<int> Indexes)
+            {
+                List<T> Candidates = new List<T>();
+                foreach(var Index in Indexes)
+                {
+                    T Candidate = Unused[Index];
+                    Candidates.Add(Candidate);
+                    Used.Add(Candidate);
+                    Unused.RemoveAt(Index);
+                }
+                RefreshOldest();
+                ListUpdated?.Invoke();
+                return [.. Candidates];
             }
 
             private void RefreshOldest()

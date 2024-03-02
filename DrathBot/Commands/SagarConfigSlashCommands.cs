@@ -184,8 +184,21 @@ namespace DrathBot.Commands
 
             Console.WriteLine($"Got {allMessages.Length} Valid Messages");
 
+            DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage[] CurrentUsed = [.. Program._SagarismClient.SagarQuotes.Used];
+
+            Console.WriteLine($"Got {allMessages.Length} Valid Messages");
+
             var NewQuotes = new SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(SagarQuotes, Program._SagarismClient.SagarQuotes.refreshDec);
             Program._SagarismClient.SagarQuotes = NewQuotes;
+
+            List<int> IndexsToSetUsed = [];
+            foreach(var i in CurrentUsed)
+            {
+                var NewEntry = Program._SagarismClient.SagarQuotes.Unused.FirstOrDefault(x => x.MessageID == i.MessageID);
+                if (NewEntry is null) { continue; }
+                IndexsToSetUsed.Add(Program._SagarismClient.SagarQuotes.Unused.IndexOf(NewEntry));
+            }
+            Program._SagarismClient.SagarQuotes.SetMessagesUsed(IndexsToSetUsed);
             Program._SagarismClient.Commands.UpdateQuoteCacheFile();
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {SagarQuotes.Count} Messages"));
