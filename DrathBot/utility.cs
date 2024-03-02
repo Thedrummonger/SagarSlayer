@@ -13,11 +13,11 @@ namespace DrathBot
 {
     public static class DiscordUtility
     {
-        public static DiscordUser? GetUserByIDString(string ID)
+        public static async Task<DiscordUser?> GetUserByIDString(string ID)
         {
             if (!ulong.TryParse(ID, out ulong _UserID)) { return null; }
-            DiscordUser User;
-            try { User = Program._DiscordBot.Client.GetUserAsync(_UserID)?.Result; }
+            DiscordUser? User;
+            try { User = await Program._DiscordBot.Client.GetUserAsync(_UserID); }
             catch { User = null; }
             return User;
         }
@@ -35,17 +35,19 @@ namespace DrathBot
             return list;
         }
 
-        public static DiscordMessage[] GetAllMessagesInChannel(ulong channelID)
+        public static async Task<DiscordMessage[]> GetAllMessagesInChannel(ulong channelID)
         {
-            var TestChannel = Program._DiscordBot.Client.GetChannelAsync(channelID).Result;
-            var Messages = TestChannel.GetMessagesAsync(5000).AllResultsAsync().Result;
+            var TestChannel = await Program._DiscordBot.Client.GetChannelAsync(channelID);
+            var Messages = await TestChannel.GetMessagesAsync(5000).AllResultsAsync();
             //For some reason the GetMessagesAsync doesn't seem to respect the limit and will always only grab 100 messages
             //To get around this I can use GetMessagesBeforeAsync to get all of the messages before the oldest one.
-            var PreviousMessages = TestChannel.GetMessagesBeforeAsync(Messages.First().Id, 5000).AllResultsAsync().Result;
+            var PreviousMessages = await TestChannel.GetMessagesBeforeAsync(Messages.First().Id, 5000).AllResultsAsync();
 
             var allMessages = Messages.Concat(PreviousMessages);
 
-            return [.. allMessages.OrderBy(x => x.Timestamp)];
+            DiscordMessage[] Result = [.. allMessages.OrderBy(x => x.Timestamp)];
+
+            return Result;
         }
         public static Stream ConvertAudioToPcm(string filePath)
         {

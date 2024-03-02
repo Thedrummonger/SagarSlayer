@@ -58,7 +58,7 @@ namespace DrathBot.Commands
                 foreach(var ID in IDs)
                 {
                     Console.WriteLine($"ID [{ID}]");
-                    var U = DiscordUtility.GetUserByIDString(ID);
+                    var U = await DiscordUtility.GetUserByIDString(ID);
                     if (U is null) { Console.WriteLine($"Failed to get User"); continue; }
                     mentions.Add(new UserMention(U));
                     Message += $"{U.Mention} ";

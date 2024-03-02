@@ -113,8 +113,8 @@ namespace DrathBot.Commands
         [SlashCommand("SeeReplyTargets", "List all active replies and their ID")]
         public async Task SeeReplyTargets(InteractionContext ctx)
         {
-            var Users = Program._SagarismClient.Commands.GetReplyTargets();
-            if (!Users.Any())
+            var Users = await Program._SagarismClient.Commands.GetReplyTargets();
+            if (Users.Length == 0)
             {
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 .WithContent("Not replying to any users"));
@@ -140,7 +140,7 @@ namespace DrathBot.Commands
         [SlashCommand("AddNewReplyTargetByID", "Adds a New Reply Target By User ID")]
         public async Task AddNewReplyTargetID(InteractionContext ctx, [Option("UserID", "Discord User ID To Add")] string UserID)
         {
-            var User = DiscordUtility.GetUserByIDString(UserID);
+            var User = await DiscordUtility.GetUserByIDString(UserID);
             if (User is null)
             {
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Invalid UserID").AsEphemeral());
@@ -157,7 +157,7 @@ namespace DrathBot.Commands
         [SlashCommand("DeleteReplyTargetByID", "Deletes a Reply Target By User ID")]
         public async Task DeleteReplyTargetID(InteractionContext ctx, [Option("UserID", "Discord User ID To Add")] string UserID)
         {
-            var User = DiscordUtility.GetUserByIDString(UserID);
+            var User = await DiscordUtility.GetUserByIDString(UserID);
             if (User is null)
             {
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Invalid UserID").AsEphemeral());
@@ -169,7 +169,7 @@ namespace DrathBot.Commands
         public async Task GetQuotes(InteractionContext ctx)
         {
             await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-            var allMessages = DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetQuotesChannel());
+            var allMessages = await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetQuotesChannel());
 
             Console.WriteLine($"Got {allMessages.Length} Total Messages");
 

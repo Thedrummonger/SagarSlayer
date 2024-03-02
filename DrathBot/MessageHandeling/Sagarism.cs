@@ -323,16 +323,17 @@ namespace DrathBot.MessageHandling
             catch (Exception ex) { Console.WriteLine($"Failed to write Cron Debt data\n{ex}"); }
         }
 
-        public DiscordUser[] GetReplyTargets()
+        public async Task<DiscordUser[]> GetReplyTargets()
         {
             List<DiscordUser> Targets = new List<DiscordUser>();
             foreach (var T in _Parent.SagarConfig.ReplyTargets)
             {
-                DiscordUser? User = DiscordUtility.GetUserByIDString(T.ToString());
+                DiscordUser? User = await DiscordUtility.GetUserByIDString(T.ToString());
                 if (User is null) { continue; }
                 Targets.Add(User);
             }
-            return [.. Targets];
+            DiscordUser[] Result = [.. Targets];
+            return Result;
         }
         public SagarOptionEditStatus AddReplyTarget(DiscordUser User)
         {
