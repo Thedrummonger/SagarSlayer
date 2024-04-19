@@ -72,7 +72,7 @@ namespace DrathBot.MessageHandling
         public async Task SetDebtAsStatus()
         {
             if (!Program._DiscordBot.BotIsLive) { return; }
-            DiscordActivity activity = new(Debt.GetCronDebtStatus(), ActivityType.Custom);
+            DiscordActivity activity = new(Debt.GetCronDebtStatus(), DiscordActivityType.Custom);
             SagarConfig.UserStatus = null;
             Commands.UpdateConfigFile();
             await Program._DiscordBot.Client.UpdateStatusAsync(activity);

@@ -91,7 +91,7 @@ namespace DrathBot.Commands
                     Currency = "Unknown Currency";
                     break;
             }
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Sagar is {Quote} {Currency} in debt"));
+            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Sagar is {Quote} {Currency} in debt"));
         }
 
         [SlashCommand("AddCronDebt", "Add the given value to Jordans Cron Debt")]
@@ -117,7 +117,7 @@ namespace DrathBot.Commands
             ulong New = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
             string CurrencyName = type == CronDebt.Currency.Silver ? "Silver" : "Cron";
 
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().WithContent($"Sagar Debt was updated from {Current} to {New} {CurrencyName}"));
         }
 
@@ -127,14 +127,14 @@ namespace DrathBot.Commands
             var LastTransaction = Program._SagarismClient.Debt.UndoLastTransaction();
             if (LastTransaction is null)
             {
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().WithContent($"No transactions exist to undo"));
                 return;
             }
             Program._SagarismClient.Commands.UpdateCronData();
             if (Program._SagarismClient.SagarConfig.UserStatus is null) { await Program._SagarismClient.SetDebtAsStatus(); }
 
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder()
                 .WithContent($"Reverted Transaction adding {LastTransaction.SilverAdded} to {LastTransaction.PreviousValue} resulting in {LastTransaction.NewValue}\n" +
                 $"{LastTransaction.PreviousValue} is now the current value"));

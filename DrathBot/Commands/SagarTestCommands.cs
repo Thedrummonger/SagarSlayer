@@ -18,7 +18,7 @@ namespace SagarSlayer.Commands
                 await ctx.CreateResponseAsync("You must be in a voice channel to run this command");
                 return;
             }
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Sagar Speaks").AsEphemeral());
+            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Sagar Speaks").AsEphemeral());
 
             try
             {
@@ -44,7 +44,7 @@ namespace SagarSlayer.Commands
         public async Task AI(InteractionContext ctx, [Option("Prompt", "AI Prmpt")] string Reply)
         {
             //https://www.bytehide.com/blog/chatbot-chatgpt-csharp
-            await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+            await ctx.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource);
 
             var Result = Program._ChatGPTClient.SendMessage(Reply);
 
