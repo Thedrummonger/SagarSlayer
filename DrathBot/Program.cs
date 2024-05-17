@@ -7,6 +7,7 @@ using SagarSlayer.AI;
 using SagarSlayer.Commands;
 using SagarSlayer.DataStructure;
 using System.Diagnostics;
+using TDMUtils;
 
 namespace DrathBot
 {
@@ -27,7 +28,7 @@ namespace DrathBot
             VerifyDataFiles();
 
             //Register Clients
-            var OPenAIData = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.AIData, new AI.ChatGPTData(), false);
+            var OPenAIData = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.AIData, new AI.ChatGPTData(), false);
             _ChatGPTClient = new ChatGPTClient(OPenAIData.APIKey);
             _SagarismClient = new MessageHandling.Sagarism();
             _DiscordBot = new ExtendedDiscordObjects.DiscordBot(_SagarismClient.SagarConfig.DiscordData.GetBotKey());

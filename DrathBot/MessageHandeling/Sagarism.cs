@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using SagarSlayer.DataStructure;
 using System.Diagnostics;
+using TDMUtils;
 using static DrathBot.DataStructure.ExtendedDiscordObjects;
 using static DrathBot.DataStructure.Sagarism;
 
@@ -35,14 +36,14 @@ namespace DrathBot.MessageHandling
             Commands = new SagarConfigCommands(this);
             if (!Directory.Exists(StaticBotPaths.Sagarism.Directories.SagarismData)) { Directory.CreateDirectory(StaticBotPaths.Sagarism.Directories.SagarismData); }
 
-            SagarConfig = Utility.GetfromFile<SagarConfig>(StaticBotPaths.Sagarism.Files.SagarismConfig);
+            SagarConfig = Utility.LoadObjectFromFileOrDefault<SagarConfig>(StaticBotPaths.Sagarism.Files.SagarismConfig);
             if (SagarConfig is null) { throw new Exception("Sagar Config Was missing or corrupted"); }
-            SagarQuotes = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
-            SagarReplies = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.SagarResponseFile, GetSagarRepliesTemplate(), true);
-            DailyQuoteTracking = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
-            ImageCensors = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
+            SagarQuotes = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
+            SagarReplies = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarResponseFile, GetSagarRepliesTemplate(), true);
+            DailyQuoteTracking = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
+            ImageCensors = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
             DailyQuoteTimer = new(e => { SendDailyQuote(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
-            Debt = Utility.GetfromFile(StaticBotPaths.Sagarism.Files.CronDebt, new CronDebt(), true);
+            Debt = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.CronDebt, new CronDebt(), true);
 
             SagarQuotes.ListUpdated += () => { Commands.UpdateQuoteCacheFile(); };
             SagarReplies.ListUpdated += () => { Commands.UpdateResponseCacheFile(); };
@@ -106,7 +107,7 @@ namespace DrathBot.MessageHandling
         public static Misc.DistinctList<SagarResponse> GetSagarRepliesTemplate()
         {
             List<SagarResponse> Responses = new List<SagarResponse>();
-            foreach (var i in Utility.GetfromFile<string[]>(StaticBotPaths.Sagarism.Files.DefaultResponseFile, Array.Empty<string>(), false))
+            foreach (var i in Utility.LoadObjectFromFileOrDefault<string[]>(StaticBotPaths.Sagarism.Files.DefaultResponseFile, Array.Empty<string>(), false))
             {
                 Responses.Add(new SagarResponse(i));
             }
@@ -140,11 +141,12 @@ namespace DrathBot.MessageHandling
                 Debug.WriteLine("Waiting until 8 am");
                 return;
             }
+            /*
             if (InternetTimeTest.Hour > 8)
             {
                 Debug.WriteLine("Time Frame Has passed");
                 return;
-            }
+            }*/
             Debug.WriteLine("Sending Daily Quote");
 
             var Quote = GetRandomQuote();

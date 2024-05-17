@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using System.Text;
+using TDMUtils;
 
 namespace DrathBot.Commands
 {
