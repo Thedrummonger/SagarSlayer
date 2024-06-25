@@ -36,14 +36,14 @@ namespace DrathBot.MessageHandling
             Commands = new SagarConfigCommands(this);
             if (!Directory.Exists(StaticBotPaths.Sagarism.Directories.SagarismData)) { Directory.CreateDirectory(StaticBotPaths.Sagarism.Directories.SagarismData); }
 
-            SagarConfig = Utility.LoadObjectFromFileOrDefault<SagarConfig>(StaticBotPaths.Sagarism.Files.SagarismConfig);
+            SagarConfig = DataFileUtilities.LoadObjectFromFileOrDefault<SagarConfig>(StaticBotPaths.Sagarism.Files.SagarismConfig);
             if (SagarConfig is null) { throw new Exception("Sagar Config Was missing or corrupted"); }
-            SagarQuotes = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
-            SagarReplies = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarResponseFile, GetSagarRepliesTemplate(), true);
-            DailyQuoteTracking = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
-            ImageCensors = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
+            SagarQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
+            SagarReplies = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarResponseFile, GetSagarRepliesTemplate(), true);
+            DailyQuoteTracking = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
+            ImageCensors = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
             DailyQuoteTimer = new(e => { SendDailyQuote(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
-            Debt = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.CronDebt, new CronDebt(), true);
+            Debt = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.CronDebt, new CronDebt(), true);
 
             SagarQuotes.ListUpdated += () => { Commands.UpdateQuoteCacheFile(); };
             SagarReplies.ListUpdated += () => { Commands.UpdateResponseCacheFile(); };
@@ -92,7 +92,7 @@ namespace DrathBot.MessageHandling
             Console.WriteLine($"{SagarReplies.Unused.Count} Available");
             Console.WriteLine($"{SagarReplies.MaxUsed} Max History");
             Console.WriteLine($"Sagar Config ========");
-            var ConfigCopy = Utility.SerializeConvert<SagarConfig>(SagarConfig);
+            var ConfigCopy = MiscUtilities.SerializeConvert<SagarConfig>(SagarConfig);
             ConfigCopy.DiscordData = null;
             Console.WriteLine($"{ConfigCopy.ToFormattedJson()}");
             var Now = DateTime.Now;
@@ -107,7 +107,7 @@ namespace DrathBot.MessageHandling
         public static Misc.DistinctList<SagarResponse> GetSagarRepliesTemplate()
         {
             List<SagarResponse> Responses = new List<SagarResponse>();
-            foreach (var i in Utility.LoadObjectFromFileOrDefault<string[]>(StaticBotPaths.Sagarism.Files.DefaultResponseFile, Array.Empty<string>(), false))
+            foreach (var i in DataFileUtilities.LoadObjectFromFileOrDefault<string[]>(StaticBotPaths.Sagarism.Files.DefaultResponseFile, Array.Empty<string>(), false))
             {
                 Responses.Add(new SagarResponse(i));
             }
@@ -272,6 +272,8 @@ namespace DrathBot.MessageHandling
                 Embeds.First().WithTitle(Title).WithColor(DiscordColor.Green);
             }
             Embeds.Last().WithTimestamp(Quote.TimeStamp);
+            var Author = Program._DiscordBot.Client.GetUserAsync(Quote.AuthorID)?.Result;
+            Embeds.Last().WithFooter($"Quoted By {Author?.Username??Quote.AuthorID.ToString()}");
             return Embeds;
         }
 

@@ -28,7 +28,7 @@ namespace DrathBot
             VerifyDataFiles();
 
             //Register Clients
-            var OPenAIData = Utility.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.AIData, new AI.ChatGPTData(), false);
+            var OPenAIData = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.AIData, new AI.ChatGPTData(), false);
             _ChatGPTClient = new ChatGPTClient(OPenAIData.APIKey);
             _SagarismClient = new MessageHandling.Sagarism();
             _DiscordBot = new ExtendedDiscordObjects.DiscordBot(_SagarismClient.SagarConfig.DiscordData.GetBotKey());
