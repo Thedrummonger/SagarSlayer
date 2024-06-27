@@ -4,17 +4,11 @@ namespace DrathBot.DataStructure
 {
     public class Sagarism
     {
-        public class SagarResponse
+        public class SagarResponse(string _Message, int _Weight = 100)
         {
-            public SagarResponse(string _Message, int _Weight = 100)
-            {
-                ID = Guid.NewGuid();
-                Message = _Message;
-                Weight = _Weight;
-            }
-            public Guid ID;
-            public int Weight = 100;
-            public string Message;
+            public Guid ID = Guid.NewGuid();
+            public int Weight = _Weight;
+            public string Message = _Message;
         }
 
         public class SagarConfig
@@ -36,7 +30,8 @@ namespace DrathBot.DataStructure
             public SagarismBotKeys BotKeys = new();
             public string GetBotKey() { return Program.IsDebug ? BotKeys.Testing : BotKeys.Production; }
             public ulong GetServerID() { return Program.IsDebug ? TestServer.ServerID : ProdServer.ServerID; }
-            public ulong GetQuotesChannel() { return Program.IsDebug ? TestServer.Channels.Quotes : ProdServer.Channels.Quotes; }
+            public ulong GetSagarQuotesChannel() { return Program.IsDebug ? TestServer.Channels.SQuotes : ProdServer.Channels.SQuotes; }
+            public ulong GetMiscQuotesChannel() { return Program.IsDebug ? TestServer.Channels.RQuotes : ProdServer.Channels.RQuotes; }
             public ulong GetGeneralChannel() { return Program.IsDebug ? TestServer.Channels.General : ProdServer.Channels.General; }
             public ulong GetSagarUser() { return Program.IsDebug ? Users.TestUser : Users.ProductionUser; }
         }
@@ -56,7 +51,8 @@ namespace DrathBot.DataStructure
         public class SagarismChannels
         {
             public ulong General;
-            public ulong Quotes;
+            public ulong SQuotes;
+            public ulong RQuotes;
             public ulong Config;
         }
 

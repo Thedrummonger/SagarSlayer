@@ -28,7 +28,8 @@ namespace DrathBot.MessageHandling
             else
             {
                 if (Message.Server.Id.In(SagarData.ProdServer.ServerID, SagarData.TestServer.ServerID)) { Program._SagarismClient.ReplyToSagar(Message); }
-                if (Message.Channel.Id.In(SagarData.GetQuotesChannel())) { Program._SagarismClient.AddSagarQuote(Message); }
+                if (Message.Channel.Id.In(SagarData.GetSagarQuotesChannel())) { Program._SagarismClient.AddSagarQuote(Message); }
+                if (Message.Channel.Id.In(SagarData.GetMiscQuotesChannel())) { Program._SagarismClient.AddMiscQuote(Message); }
             }
         }
     }

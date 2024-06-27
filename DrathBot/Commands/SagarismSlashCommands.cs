@@ -13,9 +13,15 @@ namespace DrathBot.Commands
         [SlashCommand("SagarQuote", "Say a random Sagar Quote")]
         public async Task GetSagarQuote(InteractionContext ctx)
         {
-            var Quote = Program._SagarismClient.GetRandomQuote();
+            var Quote = Program._SagarismClient.GetRandomSagarQuote();
             await ctx.CreateResponseAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
+        }
 
+        [SlashCommand("Quote", "Say a random Quote")]
+        public async Task GetMiscQuote(InteractionContext ctx)
+        {
+            var Quote = Program._SagarismClient.GetRandomMiscQuote();
+            await ctx.CreateResponseAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
         }
 
         [SlashCommand("GetUserID", "Gets the discord ID of a user")]

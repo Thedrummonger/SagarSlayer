@@ -167,10 +167,10 @@ namespace DrathBot.Commands
             await DeleteReplyTarget(ctx, User);
         }
         [SlashCommand("UpdateSagarQuotes", "Manually updates the Cache of Sagar Quotes from the Sagar Quotes channel")]
-        public async Task GetQuotes(InteractionContext ctx)
+        public async Task GetSagarQuotes(InteractionContext ctx)
         {
             await ctx.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource);
-            var allMessages = await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetQuotesChannel());
+            var allMessages = await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetSagarQuotesChannel());
 
             Console.WriteLine($"Got {allMessages.Length} Total Messages");
 
@@ -200,9 +200,48 @@ namespace DrathBot.Commands
                 IndexsToSetUsed.Add(Program._SagarismClient.SagarQuotes.Unused.IndexOf(NewEntry));
             }
             Program._SagarismClient.SagarQuotes.SetMessagesUsed(IndexsToSetUsed);
-            Program._SagarismClient.Commands.UpdateQuoteCacheFile();
+            Program._SagarismClient.Commands.UpdateSagarQuoteCacheFile();
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {SagarQuotes.Count} Messages"));
+        }
+
+        [SlashCommand("UpdateMiscQuotes", "Manually updates the Cache of Sagar Quotes from the Sagar Quotes channel")]
+        public async Task GetQuotes(InteractionContext ctx)
+        {
+            await ctx.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource);
+            var allMessages = await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetMiscQuotesChannel());
+
+            Console.WriteLine($"Got {allMessages.Length} Total Messages");
+
+            List<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> MiscQuotes = [];
+            foreach (var message in allMessages)
+            {
+                var NewMessage = DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage.FromDiscordMessage(message);
+                MiscQuotes.Add(NewMessage);
+            }
+
+            MiscQuotes = [.. MiscQuotes.OrderBy(x => x.TimeStamp)];
+
+            Console.WriteLine($"Got {allMessages.Length} Valid Messages");
+
+            DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage[] CurrentUsed = [.. Program._SagarismClient.SagarQuotes.Used];
+
+            Console.WriteLine($"Got {allMessages.Length} Valid Messages");
+
+            var NewQuotes = new SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(MiscQuotes, Program._SagarismClient.SagarQuotes.refreshDec);
+            Program._SagarismClient.MiscQuotes = NewQuotes;
+
+            List<int> IndexsToSetUsed = [];
+            foreach (var i in CurrentUsed)
+            {
+                var NewEntry = Program._SagarismClient.MiscQuotes.Unused.FirstOrDefault(x => x.MessageID == i.MessageID);
+                if (NewEntry is null) { continue; }
+                IndexsToSetUsed.Add(Program._SagarismClient.MiscQuotes.Unused.IndexOf(NewEntry));
+            }
+            Program._SagarismClient.MiscQuotes.SetMessagesUsed(IndexsToSetUsed);
+            Program._SagarismClient.Commands.UpdateMiscQuoteCacheFile();
+
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {MiscQuotes.Count} Messages"));
         }
 
         [SlashCommand("ToggleReduceDuplicateResponses", "The program will attempt to use unique responses")]
@@ -235,7 +274,7 @@ namespace DrathBot.Commands
         [SlashCommand("QuoteOfTheDay", "Forces the bot to post a Sagar QOTD")]
         private async Task ForceQuote(InteractionContext ctx)
         {
-            var Quote = Program._SagarismClient.GetRandomQuote();
+            var Quote = Program._SagarismClient.GetRandomSagarQuote();
             //var Quote = Program._SagarismClient.SagarQuotes.Source.First(x => x.Attachments is not null && x.Attachments.Count > 1);
 
             Program._SagarismClient.Commands.UpdateDailyQuoteCacheFile();

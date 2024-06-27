@@ -18,6 +18,8 @@ namespace DrathBot.MessageHandling
 
         public Misc.DistinctList<SerializeableDiscordMessage> SagarQuotes;
 
+        public Misc.DistinctList<SerializeableDiscordMessage> MiscQuotes;
+
         public Misc.DistinctList<SagarResponse> SagarReplies;
 
         public SagarConfigCommands Commands;
@@ -39,13 +41,15 @@ namespace DrathBot.MessageHandling
             SagarConfig = DataFileUtilities.LoadObjectFromFileOrDefault<SagarConfig>(StaticBotPaths.Sagarism.Files.SagarismConfig);
             if (SagarConfig is null) { throw new Exception("Sagar Config Was missing or corrupted"); }
             SagarQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
+            MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
             SagarReplies = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarResponseFile, GetSagarRepliesTemplate(), true);
             DailyQuoteTracking = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
             ImageCensors = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
             DailyQuoteTimer = new(e => { SendDailyQuote(); }, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
             Debt = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.CronDebt, new CronDebt(), true);
 
-            SagarQuotes.ListUpdated += () => { Commands.UpdateQuoteCacheFile(); };
+            SagarQuotes.ListUpdated += () => { Commands.UpdateSagarQuoteCacheFile(); };
+            MiscQuotes.ListUpdated += () => { Commands.UpdateMiscQuoteCacheFile(); };
             SagarReplies.ListUpdated += () => { Commands.UpdateResponseCacheFile(); };
         }
 
@@ -85,8 +89,14 @@ namespace DrathBot.MessageHandling
             Console.WriteLine($"{SagarQuotes.Used.Count} History");
             Console.WriteLine($"{SagarQuotes.Unused.Count} Available");
             Console.WriteLine($"{SagarQuotes.MaxUsed} Max History");
-            var QuotesChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetQuotesChannel());
-            Console.WriteLine($"Listening for new Sagar Quotes in Channel [{QuotesChannel.Guild.Name}({QuotesChannel.Guild.Id})]{QuotesChannel.Name}({QuotesChannel.Id})");
+            var SagarQuotesChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetSagarQuotesChannel());
+            Console.WriteLine($"Listening for new Misc Quotes in Channel [{SagarQuotesChannel.Guild.Name}({SagarQuotesChannel.Guild.Id})]{SagarQuotesChannel.Name}({SagarQuotesChannel.Id})");
+            Console.WriteLine($"{MiscQuotes.Source.Count} Misc Quotes ========");
+            Console.WriteLine($"{MiscQuotes.Used.Count} History");
+            Console.WriteLine($"{MiscQuotes.Unused.Count} Available");
+            Console.WriteLine($"{MiscQuotes.MaxUsed} Max History");
+            var MiscQuotesChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetSagarQuotesChannel());
+            Console.WriteLine($"Listening for new Sagar Quotes in Channel [{MiscQuotesChannel.Guild.Name}({MiscQuotesChannel.Guild.Id})]{MiscQuotesChannel.Name}({MiscQuotesChannel.Id})");
             Console.WriteLine($"{SagarReplies.Source.Count} Sagar Replies ========");
             Console.WriteLine($"{SagarReplies.Used.Count} History");
             Console.WriteLine($"{SagarReplies.Unused.Count} Available");
@@ -149,7 +159,7 @@ namespace DrathBot.MessageHandling
             }*/
             Debug.WriteLine("Sending Daily Quote");
 
-            var Quote = GetRandomQuote();
+            var Quote = GetRandomSagarQuote();
 
             DailyQuoteTracking[InternetTimeTest.GetUniqueDateID()] = Quote;
             Commands.UpdateDailyQuoteCacheFile();
@@ -208,7 +218,7 @@ namespace DrathBot.MessageHandling
             return SagarReplies.Source[Candidate];
         }
 
-        public SerializeableDiscordMessage GetRandomQuote()
+        public SerializeableDiscordMessage GetRandomSagarQuote()
         {
             if (SagarConfig.ReduceDuplicateQuotes)
             {
@@ -225,6 +235,25 @@ namespace DrathBot.MessageHandling
             Console.WriteLine("Adding New Sagar Quote");
             Console.WriteLine($"{message.Author.GlobalName}: {message.MessageText}");
             SagarQuotes.AddNew(SerializeableDiscordMessage.FromDiscordMessage(message.Message));
+        }
+
+        public SerializeableDiscordMessage GetRandomMiscQuote()
+        {
+            if (SagarConfig.ReduceDuplicateQuotes)
+            {
+                var Quote = SagarQuotes.GetRandomUnused();
+                return Quote;
+            }
+            return MiscQuotes.Source.PickRandom();
+        }
+
+        public void AddMiscQuote(RecievedMessage message)
+        {
+            if (string.IsNullOrWhiteSpace(message.MessageText)) { return; }
+            if (message.MessageText.StartsWith("<")) { return; }
+            Console.WriteLine("Adding New Misc Quote");
+            Console.WriteLine($"{message.Author.GlobalName}: {message.MessageText}");
+            MiscQuotes.AddNew(SerializeableDiscordMessage.FromDiscordMessage(message.Message));
         }
 
         public DiscordInteractionResponseBuilder BuildSagarQuoteReply(SerializeableDiscordMessage Quote)
@@ -308,7 +337,13 @@ namespace DrathBot.MessageHandling
             try { File.WriteAllText(StaticBotPaths.Sagarism.Files.SagarResponseFile, _Parent.SagarReplies.ToFormattedJson()); }
             catch (Exception ex) { Console.WriteLine($"Failed to write Sagar Response Cache\n{ex}"); }
         }
-        public void UpdateQuoteCacheFile()
+        public void UpdateSagarQuoteCacheFile()
+        {
+            if (!Directory.Exists(StaticBotPaths.Sagarism.Directories.SagarismData)) { Directory.CreateDirectory(StaticBotPaths.Sagarism.Directories.SagarismData); }
+            try { File.WriteAllText(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, _Parent.SagarQuotes.ToFormattedJson()); }
+            catch (Exception ex) { Console.WriteLine($"Failed to write Sagar Quote data\n{ex}"); }
+        }
+        public void UpdateMiscQuoteCacheFile()
         {
             if (!Directory.Exists(StaticBotPaths.Sagarism.Directories.SagarismData)) { Directory.CreateDirectory(StaticBotPaths.Sagarism.Directories.SagarismData); }
             try { File.WriteAllText(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, _Parent.SagarQuotes.ToFormattedJson()); }
