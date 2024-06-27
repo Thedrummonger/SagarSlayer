@@ -166,82 +166,54 @@ namespace DrathBot.Commands
             }
             await DeleteReplyTarget(ctx, User);
         }
-        [SlashCommand("UpdateSagarQuotes", "Manually updates the Cache of Sagar Quotes from the Sagar Quotes channel")]
-        public async Task GetSagarQuotes(InteractionContext ctx)
+
+        [SlashCommand("UpdateQuoteCash", "Manually updates the Cache of Quotes from the Quotes channel")]
+        public async Task UpdateQuoteCache(InteractionContext ctx, [Option("type", "Quote Type")] DataStructure.Sagarism.QuoteType type)
         {
             await ctx.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource);
-            var allMessages = await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetSagarQuotesChannel());
 
-            Console.WriteLine($"Got {allMessages.Length} Total Messages");
-
-            List<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> SagarQuotes = [];
-            foreach (var message in allMessages)
+            DiscordMessage[] AllMessages = type switch
             {
-                var NewMessage = DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage.FromDiscordMessage(message);
-                SagarQuotes.Add(NewMessage);
-            }
+                DataStructure.Sagarism.QuoteType.SagarQuote => await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetSagarQuotesChannel()),
+                DataStructure.Sagarism.QuoteType.MiscQuote => await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetMiscQuotesChannel()),
+                _ => throw new Exception($"{type} was not a valid quote type"),
+            };
+            Console.WriteLine($"Got {AllMessages.Length} Total Messages");
 
-            SagarQuotes = [.. SagarQuotes.OrderBy(x => x.TimeStamp)];
+            List<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> DeserializedQuotes =
+                [.. AllMessages.Select(DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage.FromDiscordMessage).OrderBy(x => x.TimeStamp)];
 
-            Console.WriteLine($"Got {allMessages.Length} Valid Messages");
+            SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> CurrentQuoteCache = type switch
+            {
+                DataStructure.Sagarism.QuoteType.SagarQuote => Program._SagarismClient.SagarQuotes,
+                DataStructure.Sagarism.QuoteType.MiscQuote => Program._SagarismClient.MiscQuotes,
+                _ => throw new Exception($"{type} was not a valid quote type"),
+            };
 
-            DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage[] CurrentUsed = [.. Program._SagarismClient.SagarQuotes.Used];
-
-            Console.WriteLine($"Got {allMessages.Length} Valid Messages");
-
-            var NewQuotes = new SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(SagarQuotes, Program._SagarismClient.SagarQuotes.refreshDec);
-            Program._SagarismClient.SagarQuotes = NewQuotes;
+            var NewQuotes = new SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(DeserializedQuotes, CurrentQuoteCache.refreshDec);
 
             List<int> IndexsToSetUsed = [];
-            foreach(var i in CurrentUsed)
+            foreach (var i in CurrentQuoteCache.Used)
             {
-                var NewEntry = Program._SagarismClient.SagarQuotes.Unused.FirstOrDefault(x => x.MessageID == i.MessageID);
+                var NewEntry = NewQuotes.Unused.FirstOrDefault(x => x.MessageID == i.MessageID);
                 if (NewEntry is null) { continue; }
-                IndexsToSetUsed.Add(Program._SagarismClient.SagarQuotes.Unused.IndexOf(NewEntry));
+                IndexsToSetUsed.Add(NewQuotes.Unused.IndexOf(NewEntry));
             }
-            Program._SagarismClient.SagarQuotes.SetMessagesUsed(IndexsToSetUsed);
-            Program._SagarismClient.Commands.UpdateSagarQuoteCacheFile();
+            NewQuotes.SetMessagesUsed(IndexsToSetUsed);
 
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {SagarQuotes.Count} Messages"));
-        }
-
-        [SlashCommand("UpdateMiscQuotes", "Manually updates the Cache of Sagar Quotes from the Sagar Quotes channel")]
-        public async Task GetQuotes(InteractionContext ctx)
-        {
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource);
-            var allMessages = await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetMiscQuotesChannel());
-
-            Console.WriteLine($"Got {allMessages.Length} Total Messages");
-
-            List<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> MiscQuotes = [];
-            foreach (var message in allMessages)
+            switch (type)
             {
-                var NewMessage = DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage.FromDiscordMessage(message);
-                MiscQuotes.Add(NewMessage);
+                case DataStructure.Sagarism.QuoteType.SagarQuote:
+                    Program._SagarismClient.SagarQuotes.Override(NewQuotes);
+                    break;
+                case DataStructure.Sagarism.QuoteType.MiscQuote:
+                    Program._SagarismClient.MiscQuotes.Override(NewQuotes);
+                    break;
+                default:
+                    throw new Exception($"{type} was not a valid quote type");
             }
 
-            MiscQuotes = [.. MiscQuotes.OrderBy(x => x.TimeStamp)];
-
-            Console.WriteLine($"Got {allMessages.Length} Valid Messages");
-
-            DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage[] CurrentUsed = [.. Program._SagarismClient.SagarQuotes.Used];
-
-            Console.WriteLine($"Got {allMessages.Length} Valid Messages");
-
-            var NewQuotes = new SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(MiscQuotes, Program._SagarismClient.SagarQuotes.refreshDec);
-            Program._SagarismClient.MiscQuotes = NewQuotes;
-
-            List<int> IndexsToSetUsed = [];
-            foreach (var i in CurrentUsed)
-            {
-                var NewEntry = Program._SagarismClient.MiscQuotes.Unused.FirstOrDefault(x => x.MessageID == i.MessageID);
-                if (NewEntry is null) { continue; }
-                IndexsToSetUsed.Add(Program._SagarismClient.MiscQuotes.Unused.IndexOf(NewEntry));
-            }
-            Program._SagarismClient.MiscQuotes.SetMessagesUsed(IndexsToSetUsed);
-            Program._SagarismClient.Commands.UpdateMiscQuoteCacheFile();
-
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {MiscQuotes.Count} Messages"));
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {NewQuotes.Source.Count} Messages"));
         }
 
         [SlashCommand("ToggleReduceDuplicateResponses", "The program will attempt to use unique responses")]

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using static SagarSlayer.DataStructure.Misc;
 
 namespace SagarSlayer.DataStructure
 {
@@ -28,6 +29,15 @@ namespace SagarSlayer.DataStructure
             private Random rnd;
             [JsonIgnore]
             public int MaxUsed { get { return (int)(Source.Count * refreshDec); } }
+
+            public void Override(DistinctList<T> Target) 
+            {
+                refreshDec = Target.refreshDec;
+                Source = Target.Source;
+                Used = Target.Used;
+                Unused = Target.Unused;
+                ListUpdated?.Invoke();
+            }
 
             public T GetRandomUnused()
             {

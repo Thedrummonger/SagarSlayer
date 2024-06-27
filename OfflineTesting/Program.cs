@@ -11,16 +11,17 @@ using static DrathBot.DataStructure.ExtendedDiscordObjects;
 using static DrathBot.DataStructure.StaticBotPaths.Sagarism;
 using System.Speech.Synthesis;
 using System.Speech.AudioFormat;
+using TDMUtils;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-
+        TestTTS();
         Console.ReadLine();
     }
 
-    void TestTTS()
+    static void TestTTS()
     {
         using (SpeechSynthesizer synth = new SpeechSynthesizer())
         {
@@ -40,8 +41,8 @@ internal class Program
     void SyncUsedWithOldQuoteCache()
     {
         string OldSagarQuotesCacheFile = Path.Combine(Directories.SagarismData, "SagarQuoteCacheOLD.json");
-        var QuoteCache = Utility.GetfromFile<Misc.DistinctList<SerializeableDiscordMessage>>(Files.SagarQuotesCacheFile);
-        var OldCache = Utility.GetfromFile<Misc.DistinctList<SerializeableDiscordMessage>>(OldSagarQuotesCacheFile);
+        var QuoteCache = DataFileUtilities.LoadObjectFromFileOrDefault<Misc.DistinctList<SerializeableDiscordMessage>>(Files.SagarQuotesCacheFile);
+        var OldCache = DataFileUtilities.LoadObjectFromFileOrDefault<Misc.DistinctList<SerializeableDiscordMessage>>(OldSagarQuotesCacheFile);
         QuoteCache.ResetAll();
 
         foreach (var oldUsedQuote in OldCache.Used)

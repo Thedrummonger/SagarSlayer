@@ -15,4 +15,10 @@
     <ProjectReference Include="..\DrathBot\SagarSlayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="TDMUtils">
+      <HintPath>..\DrathBot\Lib\TDMUtils.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

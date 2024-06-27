@@ -4,6 +4,11 @@ namespace DrathBot.DataStructure
 {
     public class Sagarism
     {
+        public enum QuoteType
+        {
+            SagarQuote,
+            MiscQuote
+        }
         public class SagarResponse(string _Message, int _Weight = 100)
         {
             public Guid ID = Guid.NewGuid();
