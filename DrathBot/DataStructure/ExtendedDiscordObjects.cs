@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
+using TDMUtils;
 
 namespace DrathBot.DataStructure
 {
@@ -31,6 +32,7 @@ namespace DrathBot.DataStructure
             public ulong ChannelId;
             public ulong AuthorID;
             public string Content;
+            public HashSet<string> RelevantUsers = [];
             public DateTimeOffset TimeStamp;
             public List<DiscordAttachment> Attachments;
 
@@ -46,6 +48,10 @@ namespace DrathBot.DataStructure
                 if (message.Attachments.Count > 0)
                 {
                     Smessage.Attachments = [.. message.Attachments];
+                }
+                if (!message.Content.IsNullOrWhiteSpace())
+                {
+                    Smessage.RelevantUsers = DiscordUtility.GetQuotedUsersFromQuote(Smessage);
                 }
                 return Smessage;
             }

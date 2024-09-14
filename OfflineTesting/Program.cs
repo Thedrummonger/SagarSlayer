@@ -12,13 +12,34 @@ using static DrathBot.DataStructure.StaticBotPaths.Sagarism;
 using System.Speech.Synthesis;
 using System.Speech.AudioFormat;
 using TDMUtils;
+using DSharpPlus;
+using SagarSlayer.Lib;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        TestTTS();
-        Console.ReadLine();
+        GetNameData();
+    }
+
+    static void GetNameData()
+    {
+        var MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), false);
+        
+        var CommonWords = SagarSlayer.Lib.languageLib.GetCommonWords();
+        foreach (var discordMessage in MiscQuotes.Source)
+        {
+            discordMessage.RelevantUsers = discordMessage.GetQuotedUsersFromQuote();
+        }
+        foreach (var discordMessage in MiscQuotes.Used)
+        {
+            discordMessage.RelevantUsers = discordMessage.GetQuotedUsersFromQuote();
+        }
+        foreach (var discordMessage in MiscQuotes.Unused)
+        {
+            discordMessage.RelevantUsers = discordMessage.GetQuotedUsersFromQuote();
+        }
+        File.WriteAllText(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, MiscQuotes.ToFormattedJson());
     }
 
     static void TestTTS()

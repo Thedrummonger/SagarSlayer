@@ -95,7 +95,7 @@ namespace DrathBot.MessageHandling
             Console.WriteLine($"{MiscQuotes.Used.Count} History");
             Console.WriteLine($"{MiscQuotes.Unused.Count} Available");
             Console.WriteLine($"{MiscQuotes.MaxUsed} Max History");
-            var MiscQuotesChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetSagarQuotesChannel());
+            var MiscQuotesChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetMiscQuotesChannel());
             Console.WriteLine($"Listening for new Sagar Quotes in Channel [{MiscQuotesChannel.Guild.Name}({MiscQuotesChannel.Guild.Id})]{MiscQuotesChannel.Name}({MiscQuotesChannel.Id})");
             Console.WriteLine($"{SagarReplies.Source.Count} Sagar Replies ========");
             Console.WriteLine($"{SagarReplies.Used.Count} History");
@@ -218,13 +218,14 @@ namespace DrathBot.MessageHandling
             return SagarReplies.Source[Candidate];
         }
 
-        public SerializeableDiscordMessage GetRandomSagarQuote()
+        public SerializeableDiscordMessage? GetRandomSagarQuote()
         {
             if (SagarConfig.ReduceDuplicateQuotes)
             {
                 var Quote = SagarQuotes.GetRandomUnused();
                 return Quote;
             }
+            if (SagarQuotes.Source.Count < 1) { return null; }
             return SagarQuotes.Source.PickRandom();
         }
 
@@ -237,14 +238,28 @@ namespace DrathBot.MessageHandling
             SagarQuotes.AddNew(SerializeableDiscordMessage.FromDiscordMessage(message.Message));
         }
 
-        public SerializeableDiscordMessage GetRandomMiscQuote()
+        public SerializeableDiscordMessage? GetRandomMiscQuote()
         {
+            if (MiscQuotes.Source.Count < 1) { return null; }
             if (SagarConfig.ReduceDuplicateQuotes)
             {
-                var Quote = SagarQuotes.GetRandomUnused();
+                var Quote = MiscQuotes.GetRandomUnused();
                 return Quote;
             }
             return MiscQuotes.Source.PickRandom();
+        }
+        public SerializeableDiscordMessage? GetRandomMiscQuoteWithSubject(string Subject)
+        {
+            if (MiscQuotes.Source.Count < 1) { return null; }
+            IEnumerable<SerializeableDiscordMessage>? RelevantQuotes = [];
+            if (SagarConfig.ReduceDuplicateQuotes)
+            {
+                RelevantQuotes = MiscQuotes.Unused.Where(x => x.RelevantUsers.Contains(Subject) || x.RelevantUsers.Contains($"{Subject}s"));
+                if (RelevantQuotes.Any()) { return MiscQuotes.GetUnused(MiscQuotes.Unused.IndexOf(RelevantQuotes.PickRandom())); }
+            }
+            RelevantQuotes = MiscQuotes.Source.Where(x => x.RelevantUsers.Contains(Subject) || x.RelevantUsers.Contains($"{Subject}s"));
+            if (RelevantQuotes.Any()) { return RelevantQuotes.PickRandom(); }
+            return null;
         }
 
         public void AddMiscQuote(RecievedMessage message)
@@ -346,7 +361,7 @@ namespace DrathBot.MessageHandling
         public void UpdateMiscQuoteCacheFile()
         {
             if (!Directory.Exists(StaticBotPaths.Sagarism.Directories.SagarismData)) { Directory.CreateDirectory(StaticBotPaths.Sagarism.Directories.SagarismData); }
-            try { File.WriteAllText(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, _Parent.SagarQuotes.ToFormattedJson()); }
+            try { File.WriteAllText(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, _Parent.MiscQuotes.ToFormattedJson()); }
             catch (Exception ex) { Console.WriteLine($"Failed to write Sagar Quote data\n{ex}"); }
         }
         public void UpdateDailyQuoteCacheFile()

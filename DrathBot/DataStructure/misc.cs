@@ -39,8 +39,9 @@ namespace SagarSlayer.DataStructure
                 ListUpdated?.Invoke();
             }
 
-            public T GetRandomUnused()
+            public T? GetRandomUnused()
             {
+                if (Source.Count < 1) { return default; }
                 return GetUnused(rnd.Next(Unused.Count));
             }
             public T GetUnused(int Index)

@@ -14,13 +14,26 @@ namespace DrathBot.Commands
         public async Task GetSagarQuote(InteractionContext ctx)
         {
             var Quote = Program._SagarismClient.GetRandomSagarQuote();
+            if (Quote is null)
+            {
+                await ctx.CreateResponseAsync("No quotes available", true);
+                return;
+            }
             await ctx.CreateResponseAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
         }
 
         [SlashCommand("Quote", "Say a random Quote")]
-        public async Task GetMiscQuote(InteractionContext ctx)
+        public async Task GetMiscQuote(InteractionContext ctx, [Option("QuotedUser", "Get a quote from a specific person")] string? user = null)
         {
-            var Quote = Program._SagarismClient.GetRandomMiscQuote();
+            DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage? Quote = null;
+            if (user is not null) { Quote = Program._SagarismClient.GetRandomMiscQuoteWithSubject(user.ToLower());}
+            else { Quote = Program._SagarismClient.GetRandomMiscQuote(); }
+            if (Quote is null)
+            {
+                if (user is not null) { await ctx.CreateResponseAsync($"Could not find any quotes from {user}", true); }
+                else { await ctx.CreateResponseAsync("No quotes available", true); }
+                return;
+            }
             await ctx.CreateResponseAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
         }
 

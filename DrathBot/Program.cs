@@ -6,6 +6,7 @@ using DSharpPlus.VoiceNext;
 using SagarSlayer.AI;
 using SagarSlayer.Commands;
 using SagarSlayer.DataStructure;
+using SagarSlayer.Lib;
 using System.Diagnostics;
 using TDMUtils;
 
@@ -22,6 +23,7 @@ namespace DrathBot
         public static MessageHandling.Sagarism _SagarismClient { get; private set; }
         static async Task Main(string[] args)
         {
+            languageLib.InitializeCommonWords();
             Console.WriteLine($"Debug Mode: {IsDebug}");
             //Validate Data Files
             Console.WriteLine($"Validating AppData Directory");

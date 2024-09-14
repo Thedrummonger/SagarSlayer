@@ -1,13 +1,18 @@
-﻿using DSharpPlus;
+﻿using DrathBot.DataStructure;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
+using SagarSlayer.DataStructure;
+using SagarSlayer.Lib;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using TDMUtils;
 using YamlDotNet.Serialization;
+using static DrathBot.DataStructure.ExtendedDiscordObjects;
 
 namespace DrathBot
 {
@@ -65,6 +70,38 @@ namespace DrathBot
         public static string GetUniqueDateID(this DateTime date)
         {
             return $"{date.Year}-{date.Month}-{date.Day}";
+        }
+
+        public static string RemoveSpecialChars(this string s)
+        {
+            return string.Join("", s.Where(x => char.IsAsciiLetterOrDigit(x) || char.IsWhiteSpace(x)));
+        }
+
+        public static HashSet<string> GetQuotedUsersFromQuote(this SerializeableDiscordMessage quote)
+        {
+            var CommonWords = languageLib.GetCommonWords();
+            if (quote.Content.IsNullOrWhiteSpace()) { return []; }
+            var lines = quote.Content.SplitAtNewLine();
+            var QuotedUsers = new HashSet<string>();
+            foreach ( var line in lines )
+            {
+                if (line.Contains(':')) { QuotedUsers.Add(line.SplitOnce(':').Item1); }
+            }
+
+            HashSet<string> result = new HashSet<string>();
+            foreach (var QuotedUser in QuotedUsers)
+            {
+                string TrimmedUserline = QuotedUser.Replace('-', ' ');
+                TrimmedUserline = TrimmedUserline.RemoveSpecialChars().ToLower().TrimSpaces().Trim();
+                var Keywords = TrimmedUserline.Split(' ');
+                foreach (var Keyword in Keywords)
+                {
+                    if (char.IsNumber(Keyword[0])) { continue; }
+                    if (CommonWords.Contains(Keyword)) { continue; }
+                    result.Add(Keyword);
+                }
+            }
+            return result;
         }
     }
 }
