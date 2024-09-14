@@ -77,6 +77,18 @@ namespace DrathBot
             return string.Join("", s.Where(x => char.IsAsciiLetterOrDigit(x) || char.IsWhiteSpace(x)));
         }
 
+        public static string[] GetClosestMatch(string Input, HashSet<string> valid)
+        {
+            Dictionary<int, List<string>> distances = new Dictionary<int, List<string>>();
+            foreach(var i in valid)
+            {
+                int Distance = LevenshteinDistance.Compute(Input, i);
+                distances.SetIfEmpty(Distance, new List<string>());
+                distances[Distance].Add(i);
+            }
+            int Smallest = distances.Keys.Min();
+            return [..distances[Smallest]];
+        }
         public static HashSet<string> GetQuotedUsersFromQuote(this SerializeableDiscordMessage quote)
         {
             var CommonWords = languageLib.GetCommonWords();
@@ -102,6 +114,66 @@ namespace DrathBot
                 }
             }
             return result;
+        }
+
+        public static HashSet<string> GetAllRelevantUsers(List<SerializeableDiscordMessage> messages)
+        {
+            HashSet<string> Users = [];
+            foreach (var message in messages )
+            {
+                Users.UnionWith(message.RelevantUsers);
+            }
+            return Users;
+        }
+    }
+    static class LevenshteinDistance
+    {
+        /// <summary>
+        /// Compute the distance between two strings.
+        /// </summary>
+        public static int Compute(string s, string t)
+        {
+            int n = s.Length;
+            int m = t.Length;
+            int[,] d = new int[n + 1, m + 1];
+
+            // Step 1
+            if (n == 0)
+            {
+                return m;
+            }
+
+            if (m == 0)
+            {
+                return n;
+            }
+
+            // Step 2
+            for (int i = 0; i <= n; d[i, 0] = i++)
+            {
+            }
+
+            for (int j = 0; j <= m; d[0, j] = j++)
+            {
+            }
+
+            // Step 3
+            for (int i = 1; i <= n; i++)
+            {
+                //Step 4
+                for (int j = 1; j <= m; j++)
+                {
+                    // Step 5
+                    int cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
+
+                    // Step 6
+                    d[i, j] = Math.Min(
+                        Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
+                        d[i - 1, j - 1] + cost);
+                }
+            }
+            // Step 7
+            return d[n, m];
         }
     }
 }

@@ -19,7 +19,15 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        GetNameData();
+        var MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), false);
+        var Users = DiscordUtility.GetAllRelevantUsers(MiscQuotes.Source);
+        while (true)
+        {
+            var input = Console.ReadLine().ToLower().Trim();
+            if (Users.Contains(input)) { Console.WriteLine("MATCH!"); continue; }
+            var match = DiscordUtility.GetClosestMatch(input, Users);
+            Console.WriteLine();
+        }
     }
 
     static void GetNameData()

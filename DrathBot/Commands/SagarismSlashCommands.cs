@@ -30,7 +30,12 @@ namespace DrathBot.Commands
             else { Quote = Program._SagarismClient.GetRandomMiscQuote(); }
             if (Quote is null)
             {
-                if (user is not null) { await ctx.CreateResponseAsync($"Could not find any quotes from {user}", true); }
+                if (user is not null) 
+                {
+                    var Users = DiscordUtility.GetAllRelevantUsers(Program._SagarismClient.MiscQuotes.Source);
+                    var Matches = DiscordUtility.GetClosestMatch(user, Users);
+                    await ctx.CreateResponseAsync($"Could not find any quotes for user {user}. did you mean one of these? [{string.Join(", ", Matches)}]", true); 
+                }
                 else { await ctx.CreateResponseAsync("No quotes available", true); }
                 return;
             }
