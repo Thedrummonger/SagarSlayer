@@ -1,14 +1,16 @@
 ﻿using DrathBot.Commands;
 using DrathBot.DataStructure;
 using DSharpPlus;
-using DSharpPlus.SlashCommands;
+using DSharpPlus.Commands;
+using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.VoiceNext;
 using SagarSlayer.AI;
-using SagarSlayer.Commands;
 using SagarSlayer.DataStructure;
 using SagarSlayer.Lib;
 using System.Diagnostics;
 using TDMUtils;
+using static DrathBot.DataStructure.ExtendedDiscordObjects;
+using static DrathBot.DataStructure.Sagarism;
 
 namespace DrathBot
 {
@@ -35,31 +37,39 @@ namespace DrathBot
             _SagarismClient = new MessageHandling.Sagarism();
             _DiscordBot = new ExtendedDiscordObjects.DiscordBot(_SagarismClient.SagarConfig.DiscordData.GetBotKey());
 
-            _DiscordBot.Client.UseVoiceNext();
+            _DiscordBot.GetBuilder().UseVoiceNext(new VoiceNextConfiguration());
 
-            //Enable Commands
-            var slash = _DiscordBot.Client.UseSlashCommands();
-            slash.RegisterCommands<SagarConfigSlashCommands>(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID);
-            slash.RegisterCommands<SagarismSlashCommands>();
-            slash.RegisterCommands<SagarTestCommands>(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID);
+            _DiscordBot.GetBuilder().UseCommands(extension =>
+            {
+                extension.AddCommands(typeof(SagarConfigSlashCommands), [_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID]);
+                extension.AddCommands(typeof(SagarismSlashCommands));
+                SlashCommandProcessor processor = new SlashCommandProcessor();
+                extension.AddProcessors(processor);
+            },
+            new CommandsConfiguration()
+            {
+                DebugGuildId = _SagarismClient.SagarConfig.DiscordData.TestServer.ServerID,
+            });
 
-            //Create Listeners
-            _DiscordBot.Client.MessageCreated += MessageHandling.ParseMessage._Client_MessageCreated;
-
-            //Connect Discord Client
+            _DiscordBot.GetBuilder().ConfigureEventHandlers(handler =>
+            {
+                handler.HandleMessageCreated(MessageHandling.ParseMessage._Client_MessageCreated);
+                handler.HandleSessionCreated(Client_SessionCreated);
+            });
             Console.WriteLine($"Initializing Discord Client");
-            await _DiscordBot.Client.ConnectAsync();
 
-            _DiscordBot.Client.SessionCreated += Client_SessionCreated;
+            _DiscordBot.Build();
+
+            await _DiscordBot.GetClient().ConnectAsync();
 
             await Task.Delay(-1);
 
         }
 
-        private static Task Client_SessionCreated(DiscordClient sender, DSharpPlus.EventArgs.SessionReadyEventArgs args)
+        private static Task Client_SessionCreated(DiscordClient sender, DSharpPlus.EventArgs.SessionCreatedEventArgs args)
         {
             Console.WriteLine($"Bot is Live");
-            Console.WriteLine($"Connecting as {_DiscordBot.Client.CurrentUser.Username}({_DiscordBot.Client.CurrentUser.Id})");
+            Console.WriteLine($"Connecting as {_DiscordBot.GetClient().CurrentUser.Username}({_DiscordBot.GetClient().CurrentUser.Id})");
             _DiscordBot.BotIsLive = true;
             _SagarismClient.Initialize();
             return Task.CompletedTask;

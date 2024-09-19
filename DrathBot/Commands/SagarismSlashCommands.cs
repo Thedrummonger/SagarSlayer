@@ -1,29 +1,30 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using SagarSlayer.DataStructure;
+using System.ComponentModel;
 using TDMUtils;
 using static SagarSlayer.DataStructure.CronDebt;
 
 namespace DrathBot.Commands
 {
-    internal class SagarismSlashCommands : ApplicationCommandModule
+    internal class SagarismSlashCommands
     {
 
-        [SlashCommand("SagarQuote", "Say a random Sagar Quote")]
-        public async Task GetSagarQuote(InteractionContext ctx)
+        [Command("SagarQuote"), Description("Say a random Sagar Quote")]
+        public async Task GetSagarQuote(CommandContext ctx)
         {
             var Quote = Program._SagarismClient.GetRandomSagarQuote();
             if (Quote is null)
             {
-                await ctx.CreateResponseAsync("No quotes available", true);
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("No quotes available").AsEphemeral());
                 return;
             }
-            await ctx.CreateResponseAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
+            await ctx.RespondAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
         }
 
-        [SlashCommand("Quote", "Say a random Quote")]
-        public async Task GetMiscQuote(InteractionContext ctx, [Option("QuotedUser", "Get a quote from a specific person")] string? user = null)
+        [Command("Quote"), Description("Say a random Quote")]
+        public async Task GetMiscQuote(CommandContext ctx, [Parameter("QuotedUser"), Description("Get a quote from a specific person")] string? user = null)
         {
             DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage? Quote = null;
             if (user is not null) { Quote = Program._SagarismClient.GetRandomMiscQuoteWithSubject(user.ToLower());}
@@ -34,26 +35,26 @@ namespace DrathBot.Commands
                 {
                     var Users = DiscordUtility.GetAllRelevantUsers(Program._SagarismClient.MiscQuotes.Source);
                     var Matches = DiscordUtility.GetClosestMatch(user, Users);
-                    await ctx.CreateResponseAsync($"Could not find any quotes for user {user}. did you mean one of these? [{string.Join(", ", Matches)}]", true); 
+                    await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent($"Could not find any quotes for user {user}. did you mean one of these? [{string.Join(", ", Matches)}]").AsEphemeral()); 
                 }
-                else { await ctx.CreateResponseAsync("No quotes available", true); }
+                else { await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("No quotes available").AsEphemeral()); }
                 return;
             }
-            await ctx.CreateResponseAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
+            await ctx.RespondAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
         }
 
-        [SlashCommand("GetUserID", "Gets the discord ID of a user")]
-        public async Task GetUserID(InteractionContext ctx, [Option("User", "User to get the ID of")] DiscordUser user)
+        [Command("GetUserID"), Description("Gets the discord ID of a user")]
+        public async Task GetUserID(CommandContext ctx, [Parameter("User"), Description("User to get the ID of")] DiscordUser user)
         {
-            await ctx.CreateResponseAsync($"User ID: {user.Id}", true);
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent($"User ID: {user.Id}").AsEphemeral());
         }
 
-        [SlashCommand("TellUser", "Say something in general")]
-        public async Task TellUser(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("User", "User to ping")] DiscordUser? user = null)
+        [Command("TellUser"), Description("Say something in general")]
+        public async Task TellUser(CommandContext ctx, [Parameter("Message"), Description("Message to say")] string Reply, [Parameter("User"), Description("User to ping")] DiscordUser? user = null)
         {
-            await ctx.CreateResponseAsync("Sending", true);
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("Sending").AsEphemeral());
 
-            var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
+            var Channel = await Program._DiscordBot.GetClient().GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
             var builder = new DiscordMessageBuilder();
             string Message = string.Empty;
             if (user is not null)
@@ -66,12 +67,12 @@ namespace DrathBot.Commands
             await builder.SendAsync(Channel);
         }
 
-        [SlashCommand("TellUsers", "'TellUser' but can ping multiple users or users not in this server")]
-        public async Task TellUsers(InteractionContext ctx, [Option("Message", "Message to say")] string Reply, [Option("Ping", "Discord ID to Ping (separate multiple with commas)")] string UserID = "")
+        [Command("TellUsers"), Description("'TellUser' but can ping multiple users or users not in this server")]
+        public async Task TellUsers(CommandContext ctx, [Parameter("Message"), Description("Message to say")] string Reply, [Parameter("Ping"), Description("Discord ID to Ping (separate multiple with commas)")] string UserID = "")
         {
-            await ctx.CreateResponseAsync("Sending", true);
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("Sending").AsEphemeral());
 
-            var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
+            var Channel = await Program._DiscordBot.GetClient().GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
             var builder = new DiscordMessageBuilder();
             string Message = string.Empty;
 
@@ -96,8 +97,8 @@ namespace DrathBot.Commands
             await builder.SendAsync(Channel);
         }
 
-        [SlashCommand("PrintCronDebt", "Get Sagars Cron Debt")]
-        public async Task PrintDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type)
+        [Command("PrintCronDebt"), Description("Get Sagars Cron Debt")]
+        public async Task PrintDebt(CommandContext ctx, [Parameter("Currency"), Description("Debt Currency")] CronDebt.Currency type)
         {
             string Currency;
             ulong Quote;
@@ -116,22 +117,22 @@ namespace DrathBot.Commands
                     Currency = "Unknown Currency";
                     break;
             }
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Sagar is {Quote} {Currency} in debt"));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent($"Sagar is {Quote} {Currency} in debt"));
         }
 
-        [SlashCommand("AddCronDebt", "Add the given value to Jordans Cron Debt")]
-        public async Task AddDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type, [Option("Amount", "Amount to add to debt")] long Amount)
+        [Command("AddCronDebt"), Description("Add the given value to Jordans Cron Debt")]
+        public async Task AddDebt(CommandContext ctx, [Parameter("Currency"), Description("Debt Currency")] CronDebt.Currency type, [Parameter("Amount"), Description("Amount to add to debt")] long Amount)
         {
             await UpdateCronDebt(ctx, type, Amount, false);
         }
 
-        [SlashCommand("SetCronDebt", "Sets the value of Jordans Cron Debt")]
-        public async Task SetDebt(InteractionContext ctx, [Option("Currency", "Debt Currency")] CronDebt.Currency type, [Option("Amount", "Current Debt Value")] long Amount)
+        [Command("SetCronDebt"), Description("Sets the value of Jordans Cron Debt")]
+        public async Task SetDebt(CommandContext ctx, [Parameter("Currency"), Description("Debt Currency")] CronDebt.Currency type, [Parameter("Amount"), Description("Current Debt Value")] long Amount)
         {
             await UpdateCronDebt(ctx, type, Amount, true);
         }
 
-        public async Task UpdateCronDebt(InteractionContext ctx, CronDebt.Currency type, long Amount, bool Set)
+        public async Task UpdateCronDebt(CommandContext ctx, CronDebt.Currency type, long Amount, bool Set)
         {
             ulong DebtAmount = type == CronDebt.Currency.Silver ? (ulong)Amount : (ulong)Amount * CronDebt.SilverConversionRate;
             ulong Current = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
@@ -142,25 +143,22 @@ namespace DrathBot.Commands
             ulong New = type == CronDebt.Currency.Silver ? Program._SagarismClient.Debt.GetSilverDebt() : Program._SagarismClient.Debt.GetCronDebt();
             string CurrencyName = type == CronDebt.Currency.Silver ? "Silver" : "Cron";
 
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().WithContent($"Sagar Debt was updated from {Current} to {New} {CurrencyName}"));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent($"Sagar Debt was updated from {Current} to {New} {CurrencyName}"));
         }
 
-        [SlashCommand("UndoLastTransaction", "Reverts the last Debt Change")]
-        public async Task UndoLastDebtChange(InteractionContext ctx)
+        [Command("UndoLastTransaction"), Description("Reverts the last Debt Change")]
+        public async Task UndoLastDebtChange(CommandContext ctx)
         {
             var LastTransaction = Program._SagarismClient.Debt.UndoLastTransaction();
             if (LastTransaction is null)
             {
-                await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().WithContent($"No transactions exist to undo"));
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent($"No transactions exist to undo"));
                 return;
             }
             Program._SagarismClient.Commands.UpdateCronData();
             if (Program._SagarismClient.SagarConfig.UserStatus is null) { await Program._SagarismClient.SetDebtAsStatus(); }
 
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder()
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder()
                 .WithContent($"Reverted Transaction adding {LastTransaction.SilverAdded} to {LastTransaction.PreviousValue} resulting in {LastTransaction.NewValue}\n" +
                 $"{LastTransaction.PreviousValue} is now the current value"));
         }

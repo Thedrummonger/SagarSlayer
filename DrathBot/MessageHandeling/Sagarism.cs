@@ -1,6 +1,5 @@
 ﻿using DrathBot.DataStructure;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
 using SagarSlayer.DataStructure;
 using System.Diagnostics;
 using TDMUtils;
@@ -65,13 +64,13 @@ namespace DrathBot.MessageHandling
             if (!Program._DiscordBot.BotIsLive) { return; }
             SagarConfig.UserStatus = activity;
             Commands.UpdateConfigFile();
-            await Program._DiscordBot.Client.UpdateStatusAsync(activity);
+            await Program._DiscordBot.GetClient().UpdateStatusAsync(activity);
         }
 
         public async Task SetStatusFromConfig()
         {
             if (!Program._DiscordBot.BotIsLive || SagarConfig.UserStatus is null) { return; }
-            await Program._DiscordBot.Client.UpdateStatusAsync(SagarConfig.UserStatus);
+            await Program._DiscordBot.GetClient().UpdateStatusAsync(SagarConfig.UserStatus);
         }
 
         public async Task SetDebtAsStatus()
@@ -80,7 +79,7 @@ namespace DrathBot.MessageHandling
             DiscordActivity activity = new(Debt.GetCronDebtStatus(), DiscordActivityType.Custom);
             SagarConfig.UserStatus = null;
             Commands.UpdateConfigFile();
-            await Program._DiscordBot.Client.UpdateStatusAsync(activity);
+            await Program._DiscordBot.GetClient().UpdateStatusAsync(activity);
         }
 
         public async Task PrintSagarInitializeData()
@@ -89,13 +88,13 @@ namespace DrathBot.MessageHandling
             Console.WriteLine($"{SagarQuotes.Used.Count} History");
             Console.WriteLine($"{SagarQuotes.Unused.Count} Available");
             Console.WriteLine($"{SagarQuotes.MaxUsed} Max History");
-            var SagarQuotesChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetSagarQuotesChannel());
+            var SagarQuotesChannel = await Program._DiscordBot.GetClient().GetChannelAsync(SagarConfig.DiscordData.GetSagarQuotesChannel());
             Console.WriteLine($"Listening for new Misc Quotes in Channel [{SagarQuotesChannel.Guild.Name}({SagarQuotesChannel.Guild.Id})]{SagarQuotesChannel.Name}({SagarQuotesChannel.Id})");
             Console.WriteLine($"{MiscQuotes.Source.Count} Misc Quotes ========");
             Console.WriteLine($"{MiscQuotes.Used.Count} History");
             Console.WriteLine($"{MiscQuotes.Unused.Count} Available");
             Console.WriteLine($"{MiscQuotes.MaxUsed} Max History");
-            var MiscQuotesChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetMiscQuotesChannel());
+            var MiscQuotesChannel = await Program._DiscordBot.GetClient().GetChannelAsync(SagarConfig.DiscordData.GetMiscQuotesChannel());
             Console.WriteLine($"Listening for new Sagar Quotes in Channel [{MiscQuotesChannel.Guild.Name}({MiscQuotesChannel.Guild.Id})]{MiscQuotesChannel.Name}({MiscQuotesChannel.Id})");
             Console.WriteLine($"{SagarReplies.Source.Count} Sagar Replies ========");
             Console.WriteLine($"{SagarReplies.Used.Count} History");
@@ -107,7 +106,7 @@ namespace DrathBot.MessageHandling
             Console.WriteLine($"{ConfigCopy.ToFormattedJson()}");
             var Now = DateTime.Now;
             Console.WriteLine($"Daily Sagar Quote ========");
-            var GeneralChannel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetGeneralChannel());
+            var GeneralChannel = await Program._DiscordBot.GetClient().GetChannelAsync(SagarConfig.DiscordData.GetGeneralChannel());
             Console.WriteLine($"Sending Daily Quotes to [{GeneralChannel.Guild.Name}({GeneralChannel.Guild.Id})]{GeneralChannel.Name}({GeneralChannel.Id})");
             Console.WriteLine($"Has sent Quote Today?: {HasSentDailyQuote(Now)}");
             Console.WriteLine($"Past Time Frame For Quote?: {Now.Hour > 8}");
@@ -164,8 +163,8 @@ namespace DrathBot.MessageHandling
             DailyQuoteTracking[InternetTimeTest.GetUniqueDateID()] = Quote;
             Commands.UpdateDailyQuoteCacheFile();
 
-            var Channel = await Program._DiscordBot.Client.GetChannelAsync(SagarConfig.DiscordData.GetGeneralChannel());
-            await Program._DiscordBot.Client.SendMessageAsync(Channel, BuildSagarQuoteOfTheDay(Quote));
+            var Channel = await Program._DiscordBot.GetClient().GetChannelAsync(SagarConfig.DiscordData.GetGeneralChannel());
+            await Program._DiscordBot.GetClient().SendMessageAsync(Channel, BuildSagarQuoteOfTheDay(Quote));
         }
 
         public void ReplyToSagar(RecievedMessage message)
@@ -316,7 +315,7 @@ namespace DrathBot.MessageHandling
                 Embeds.First().WithTitle(Title).WithColor(DiscordColor.Green);
             }
             Embeds.Last().WithTimestamp(Quote.TimeStamp);
-            var Author = Program._DiscordBot.Client.GetUserAsync(Quote.AuthorID)?.Result;
+            var Author = Program._DiscordBot.GetClient().GetUserAsync(Quote.AuthorID)?.Result;
             Embeds.Last().WithFooter($"Quoted By {Author?.Username??Quote.AuthorID.ToString()}");
             return Embeds;
         }

@@ -22,7 +22,7 @@ namespace DrathBot
         {
             if (!ulong.TryParse(ID, out ulong _UserID)) { return null; }
             DiscordUser? User;
-            try { User = await Program._DiscordBot.Client.GetUserAsync(_UserID); }
+            try { User = await Program._DiscordBot.GetClient().GetUserAsync(_UserID); }
             catch { User = null; }
             return User;
         }
@@ -42,7 +42,7 @@ namespace DrathBot
 
         public static async Task<DiscordMessage[]> GetAllMessagesInChannel(ulong channelID)
         {
-            var TestChannel = await Program._DiscordBot.Client.GetChannelAsync(channelID);
+            var TestChannel = await Program._DiscordBot.GetClient().GetChannelAsync(channelID);
             var Messages = await TestChannel.GetMessagesAsync(5000).AllResultsAsync();
             //For some reason the GetMessagesAsync doesn't seem to respect the limit and will always only grab 100 messages
             //To get around this I can use GetMessagesBeforeAsync to get all of the messages before the oldest one.

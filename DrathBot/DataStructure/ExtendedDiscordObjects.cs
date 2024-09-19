@@ -1,8 +1,10 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Commands.Processors.SlashCommands;
+using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.SlashCommands;
 using TDMUtils;
+using static DrathBot.DataStructure.Sagarism;
 
 namespace DrathBot.DataStructure
 {
@@ -10,7 +12,7 @@ namespace DrathBot.DataStructure
     {
         public class RecievedMessage
         {
-            public RecievedMessage(MessageCreateEventArgs Args)
+            public RecievedMessage(MessageCreatedEventArgs Args)
             {
                 Author = Args.Author;
                 Server = Args.Guild;
@@ -56,23 +58,31 @@ namespace DrathBot.DataStructure
                 return Smessage;
             }
         }
-        public class DiscordBot
+        public class DiscordBot(string APIKEY)
         {
-            public DiscordBot(string APIKEY)
-            {
-                APIKey = APIKEY;
-                Configuration.Token = APIKey;
-                Client = new DiscordClient(Configuration);
-            }
             public bool BotIsLive = false;
-            public string APIKey;
-            public DiscordClient Client;
-            public DiscordConfiguration Configuration = new DiscordConfiguration()
+            public string APIKey = APIKEY;
+            private bool ClientBuilt = false;
+            private DiscordClient? Client;
+            private DiscordClientBuilder Builder = DiscordClientBuilder.CreateDefault(APIKEY, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+
+            public DiscordClient Build()
             {
-                Intents = DiscordIntents.All,
-                TokenType = TokenType.Bot,
-                AutoReconnect = true
-            };
+                if (ClientBuilt) { throw new Exception($"Client is already built"); }
+                Client = Builder.Build();
+                ClientBuilt = true;
+                return Client;
+            }
+            public DiscordClientBuilder GetBuilder()
+            {
+                if (ClientBuilt) { throw new Exception($"Builder is inaccessible as Client is already built"); }
+                return Builder;
+            }
+            public DiscordClient GetClient()
+            {
+                if (!ClientBuilt) { throw new Exception($"Client is inaccessible as it has not been built"); }
+                return Client;
+            }
         }
     }
 }

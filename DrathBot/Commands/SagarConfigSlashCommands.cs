@@ -1,123 +1,83 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
-using DSharpPlus.SlashCommands;
+using System.ComponentModel;
 using System.Text;
 using TDMUtils;
 
 namespace DrathBot.Commands
 {
-    internal class SagarConfigSlashCommands : ApplicationCommandModule
+    internal class SagarConfigSlashCommands
     {
 
-        [SlashCommand("Help", "Shows Available Commands")]
-        public async Task ShowHelp(InteractionContext ctx)
-        {
-            StringBuilder sb = new();
-            sb.AppendLine("Available Commands:");
-            sb.AppendLine();
-            sb.AppendLine("/SeeActiveReplies").Append("```");
-            sb.Append("Shows a list of replies the bot will use along with the reply ID").AppendLine("```");
-
-            sb.AppendLine("/SeeReplyTargets").Append("```");
-            sb.Append("Shows a list of the users the bot will reply to").AppendLine("```");
-
-            sb.AppendLine("/SeeReplyChance").Append("```");
-            sb.Append("Returns the current chance the will reply to a a user in the Reply Targets List").AppendLine("```");
-
-            sb.AppendLine("/SetReplyChance").Append("```");
-            sb.Append("Sets the chance the bot will reply to users in the Reply Targets List").AppendLine("```");
-
-            sb.AppendLine("/SetReplyWeight").Append("```");
-            sb.Append("Sets the frequency a reply will be used. A reply with a higher weight will be used more often than replies with lower weights").AppendLine("```");
-
-            sb.AppendLine("/AddNewReply").Append("```");
-            sb.Append("Adds a the given reply to the reply list").AppendLine("```");
-
-            sb.AppendLine("/DeleteReply").Append("```");
-            sb.Append("Deletes the given reply. Use SeeActiveReplies to get the replies ID").AppendLine("```");
-
-            sb.AppendLine("/AddNewReplyTarget").Append("```");
-            sb.Append("Adds a user that the bot will reply to").AppendLine("```");
-
-            sb.AppendLine("/AddNewReplyTargetByID").Append("```");
-            sb.Append("Same as AddNewReplyTarget but can accept the users ID. This allow you to add users that are not in the current server").AppendLine("```");
-
-            sb.AppendLine("/DeleteReplyTarget").Append("```");
-            sb.Append("Removes a user from the bots reply list").AppendLine("```");
-
-            sb.AppendLine("/DeleteReplyTargetByID").Append("```");
-            sb.Append("Same as DeleteReplyTarget but can accept the users ID. This allow you to remove users that are not in the current server").AppendLine("```");
-
-            sb.AppendLine("/ToggleReduceDuplicateResponses").Append("```");
-            sb.Append("If enabled, after a response is sent, the program will go trhough at least half of the available responses before reusing that response").AppendLine("```");
-
-            sb.AppendLine("/ToggleReduceDuplicateQuotes").Append("```");
-            sb.Append("Same as above but for quotes").AppendLine("```");
-
-            sb.AppendLine("/setactivity").Append("```");
-            sb.Append("Sets the bots activity").AppendLine("```");
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(sb.ToString()));
-        }
-
-        [SlashCommand("SetReplyChance", "Sets the chance the bot will reply to Jordan")]
-        public async Task SetReplyChance(InteractionContext ctx, [Option("chance", "Percent Chance")] double Chance)
+        [Command("SetReplyChance")]
+        [Description("Sets the chance the bot will reply to Jordan")]
+        public async Task SetReplyChance(CommandContext ctx, [Parameter("chance"), Description("Percent Chance")] double Chance)
         {
             var Result = Program._SagarismClient.Commands.SetChance((int)Chance);
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
 
         }
-        [SlashCommand("SetReplyWeight", "Sets the Weight of the given reply")]
-        public async Task SetReplyChance(InteractionContext ctx, [Option("ReplyID", "Reply ID (found with SeeActiveReplies)")] string ReplyID, [Option("weight", "Reply Weight")] double Chance)
+        [Command("SetReplyWeight")]
+        [Description("Sets the Weight of the given reply")]
+        public async Task SetReplyChance(CommandContext ctx, 
+            [Parameter("ReplyID"), Description("Reply ID (found with SeeActiveReplies)")] string ReplyID, 
+            [Parameter("weight"), Description("Reply Weight")] double Chance)
         {
             if (!Guid.TryParse(ReplyID, out Guid ReplyGUID))
             {
-                await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder()
                     .WithContent($"ID {ReplyID} was not a valid reply ID. Use /See Active Replies to see all reply ID's").AsEphemeral());
                 return;
             }
             var Result = Program._SagarismClient.Commands.SetReplyWeight(ReplyGUID, (int)Chance);
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
 
         }
-        [SlashCommand("SeeReplyChance", "Returns the current Reply Chance")]
-        public async Task SeeReplyChance(InteractionContext ctx)
+        [Command("SeeReplyChance")]
+        [Description("Returns the current Reply Chance")]
+        public async Task SeeReplyChance(CommandContext ctx)
         {
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder()
                 .WithContent($"Current Reply Chance is {Program._SagarismClient.Commands.GetReplyChance() * 100}%"));
         }
-        [SlashCommand("SeeActiveReplies", "List all active replies and their ID")]
-        public async Task SeeActiveReplies(InteractionContext ctx)
+        [Command("SeeActiveReplies")]
+        [Description("List all active replies and their ID")]
+        public async Task SeeActiveReplies(CommandContext ctx)
         {
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder()
                 .WithContent($"Active replies are ```{Program._SagarismClient.Commands.GetReplies().ToFormattedJson()}```"));
         }
-        [SlashCommand("AddNewReply", "Adds a new reply")]
-        public async Task AddNewReply(InteractionContext ctx, [Option("Reply", "New Reply to add")] string Reply)
+        [Command("AddNewReply")]
+        [Description("Adds a new reply")]
+        public async Task AddNewReply(CommandContext ctx, [Parameter("Reply"), Description("New Reply to add")] string Reply)
         {
             DataStructure.Sagarism.SagarResponse NewResponse = new DataStructure.Sagarism.SagarResponse(Reply);
             var Result = Program._SagarismClient.Commands.AddReply(NewResponse);
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
         }
-        [SlashCommand("DeleteReply", "Deletes a reply")]
-        public async Task DeleteReply(InteractionContext ctx, [Option("ReplyID", "Reply ID (found with SeeActiveReplies)")] string ReplyID)
+        [Command("DeleteReply")]
+        [Description("Deletes a reply")]
+        public async Task DeleteReply(CommandContext ctx, [Parameter("ReplyID"), Description("Reply ID (found with SeeActiveReplies)")] string ReplyID)
         {
             if (!Guid.TryParse(ReplyID, out Guid ReplyGUID))
             {
-                await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder()
                     .WithContent($"ID {ReplyID} was not a valid reply ID. Use /See Active Replies to see all reply ID's").AsEphemeral());
                 return;
             }
             var Result = Program._SagarismClient.Commands.DelReply(ReplyGUID);
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
         }
 
-        [SlashCommand("SeeReplyTargets", "List all active replies and their ID")]
-        public async Task SeeReplyTargets(InteractionContext ctx)
+        [Command("SeeReplyTargets")]
+        [Description("List all active replies and their ID")]
+        public async Task SeeReplyTargets(CommandContext ctx)
         {
             var Users = await Program._SagarismClient.Commands.GetReplyTargets();
             if (Users.Length == 0)
             {
-                await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder()
                 .WithContent("Not replying to any users"));
             }
             StringBuilder Response = new StringBuilder();
@@ -129,48 +89,53 @@ namespace DrathBot.Commands
             }
             Response.Append("```");
 
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder()
                 .WithContent(Response.ToString()));
         }
-        [SlashCommand("AddNewReplyTarget", "Adds a New Reply Target")]
-        public async Task AddNewReplyTarget(InteractionContext ctx, [Option("User", "Discord User To Add")] DiscordUser User)
+        [Command("AddNewReplyTarget")]
+        [Description("Adds a New Reply Target")]
+        public async Task AddNewReplyTarget(CommandContext ctx, [Parameter("User"), Description("Discord User To Add")] DiscordUser User)
         {
             var Result = Program._SagarismClient.Commands.AddReplyTarget(User);
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
         }
-        [SlashCommand("AddNewReplyTargetByID", "Adds a New Reply Target By User ID")]
-        public async Task AddNewReplyTargetID(InteractionContext ctx, [Option("UserID", "Discord User ID To Add")] string UserID)
+        [Command("AddNewReplyTargetByID")]
+        [Description("Adds a New Reply Target By User ID")]
+        public async Task AddNewReplyTargetID(CommandContext ctx, [Parameter("UserID"), Description("Discord User ID To Add")] string UserID)
         {
             var User = await DiscordUtility.GetUserByIDString(UserID);
             if (User is null)
             {
-                await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Invalid UserID").AsEphemeral());
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent($"Invalid UserID").AsEphemeral());
                 return;
             }
             await AddNewReplyTarget(ctx, User);
         }
-        [SlashCommand("DeleteReplyTarget", "Deletes a Reply Target")]
-        public async Task DeleteReplyTarget(InteractionContext ctx, [Option("User", "Discord User To Add")] DiscordUser User)
+        [Command("DeleteReplyTarget")]
+        [Description("Deletes a Reply Target")]
+        public async Task DeleteReplyTarget(CommandContext ctx, [Parameter("User"), Description("Discord User To Add")] DiscordUser User)
         {
             var Result = Program._SagarismClient.Commands.DelReplyTarget(User);
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
         }
-        [SlashCommand("DeleteReplyTargetByID", "Deletes a Reply Target By User ID")]
-        public async Task DeleteReplyTargetID(InteractionContext ctx, [Option("UserID", "Discord User ID To Add")] string UserID)
+        [Command("DeleteReplyTargetByID")]
+        [Description("Deletes a Reply Target By User ID")]
+        public async Task DeleteReplyTargetID(CommandContext ctx, [Parameter("UserID"), Description("Discord User ID To Add")] string UserID)
         {
             var User = await DiscordUtility.GetUserByIDString(UserID);
             if (User is null)
             {
-                await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Invalid UserID").AsEphemeral());
+                await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent($"Invalid UserID").AsEphemeral());
                 return;
             }
             await DeleteReplyTarget(ctx, User);
         }
 
-        [SlashCommand("UpdateQuoteCash", "Manually updates the Cache of Quotes from the Quotes channel")]
-        public async Task UpdateQuoteCache(InteractionContext ctx, [Option("type", "Quote Type")] DataStructure.Sagarism.QuoteType type)
+        [Command("UpdateQuoteCash")]
+        [Description("Manually updates the Cache of Quotes from the Quotes channel")]
+        public async Task UpdateQuoteCache(CommandContext ctx, [Parameter("type"), Description("Quote Type")] DataStructure.Sagarism.QuoteType type)
         {
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.DeferredChannelMessageWithSource);
+            await ctx.DeferResponseAsync();
 
             DiscordMessage[] AllMessages = type switch
             {
@@ -216,53 +181,58 @@ namespace DrathBot.Commands
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {NewQuotes.Source.Count} Messages"));
         }
 
-        [SlashCommand("ToggleReduceDuplicateResponses", "The program will attempt to use unique responses")]
-        public async Task ToggleReduceDuplicateResponses(InteractionContext ctx)
+        [Command("ToggleReduceDupeResponses")]
+        [Description("The program will attempt to use unique responses")]
+        public async Task ToggleReduceDuplicateResponses(CommandContext ctx)
         {
             var Result = Program._SagarismClient.Commands.ToggleReduceDuplicateResponses();
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
         }
 
-        [SlashCommand("ToggleReduceDuplicateQuotes", "The program will attempt to use unique quotes")]
-        public async Task ToggleReduceDuplicateQuotes(InteractionContext ctx)
+        [Command("ToggleReduceDuplicateQuotes")]
+        [Description("The program will attempt to use unique quotes")]
+        public async Task ToggleReduceDuplicateQuotes(CommandContext ctx)
         {
             var Result = Program._SagarismClient.Commands.ToggleReduceDuplicateQuotes();
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent(Result.Status).AsEphemeral(Result.WasError));
         }
 
-        [SlashCommand("SetActivity", "Sets the bots activity")]
-        private async Task setactivity(InteractionContext ctx, [Option("type", "Activity Type")] DiscordActivityType type, [Option("name", "Activity Name")] string name)
+        [Command("SetActivity")]
+        [Description("Sets the bots activity")]
+        private async Task setactivity(CommandContext ctx, [Parameter("type"), Description("Activity Type")] DiscordActivityType type, [Parameter("name"), Description("Activity Name")] string name)
         {
             await Program._SagarismClient.SetStatus(new DiscordActivity(name, type));
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Status updated"));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("Status updated"));
         }
-        [SlashCommand("SetActivityCronDebt", "Shows the current debt as the activity")]
-        private async Task setactivityCronDebt(InteractionContext ctx)
+        [Command("SetActivityCronDebt")]
+        [Description("Shows the current debt as the activity")]
+        private async Task setactivityCronDebt(CommandContext ctx)
         {
             await Program._SagarismClient.SetDebtAsStatus();
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Status updated"));
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("Status updated"));
         }
 
-        [SlashCommand("QuoteOfTheDay", "Forces the bot to post a Sagar QOTD")]
-        private async Task ForceQuote(InteractionContext ctx)
+        [Command("QuoteOfTheDay")]
+        [Description("Forces the bot to post a Sagar QOTD")]
+        private async Task ForceQuote(CommandContext ctx)
         {
             var Quote = Program._SagarismClient.GetRandomSagarQuote();
             //var Quote = Program._SagarismClient.SagarQuotes.Source.First(x => x.Attachments is not null && x.Attachments.Count > 1);
 
             Program._SagarismClient.Commands.UpdateDailyQuoteCacheFile();
 
-            var Channel = await Program._DiscordBot.Client.GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Sending QOTD"));
-            await Program._DiscordBot.Client.SendMessageAsync(Channel, Program._SagarismClient.BuildSagarQuoteOfTheDay(Quote));
+            var Channel = await Program._DiscordBot.GetClient().GetChannelAsync(Program._SagarismClient.SagarConfig.DiscordData.GetGeneralChannel());
+            await ctx.RespondAsync(new DiscordInteractionResponseBuilder().WithContent("Sending QOTD"));
+            await Program._DiscordBot.GetClient().SendMessageAsync(Channel, Program._SagarismClient.BuildSagarQuoteOfTheDay(Quote));
         }
 
-        [SlashCommand("devTest", "Dev Testing")]
-        private async Task DevTest(InteractionContext ctx)
+        [Command("devTest")]
+        [Description("Dev Testing")]
+        private async Task DevTest(CommandContext ctx)
         {
             var Quote = Program._SagarismClient.SagarQuotes.Source.First(x => x.MessageID == 765343459049209906);
 
-            await ctx.CreateResponseAsync(DiscordInteractionResponseType.ChannelMessageWithSource,
-                Program._SagarismClient.BuildSagarQuoteReply(Quote));
+            await ctx.RespondAsync(Program._SagarismClient.BuildSagarQuoteReply(Quote));
         }
 
     }

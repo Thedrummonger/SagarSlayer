@@ -6,7 +6,7 @@ namespace DrathBot.MessageHandling
 {
     internal class ParseMessage
     {
-        public static Task _Client_MessageCreated(DiscordClient sender, DSharpPlus.EventArgs.MessageCreateEventArgs args)
+        public static Task _Client_MessageCreated(DiscordClient sender, DSharpPlus.EventArgs.MessageCreatedEventArgs args)
         {
             if (args.Author.IsCurrent) { return Task.CompletedTask; }
 
