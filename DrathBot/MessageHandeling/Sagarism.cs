@@ -16,11 +16,11 @@ namespace DrathBot.MessageHandling
 
         public SagarConfig SagarConfig;
 
-        public Misc.DistinctList<SerializeableDiscordMessage> SagarQuotes;
+        public RandomCycleList<SerializeableDiscordMessage> SagarQuotes;
 
-        public Misc.DistinctList<SerializeableDiscordMessage> MiscQuotes;
+        public RandomCycleList<SerializeableDiscordMessage> MiscQuotes;
 
-        public Misc.DistinctList<SagarResponse> SagarReplies;
+        public RandomCycleList<SagarResponse> SagarReplies;
 
         public SagarConfigCommands Commands;
 
@@ -40,8 +40,8 @@ namespace DrathBot.MessageHandling
 
             SagarConfig = DataFileUtilities.LoadObjectFromFileOrDefault<SagarConfig>(StaticBotPaths.Sagarism.Files.SagarismConfig);
             if (SagarConfig is null) { throw new Exception("Sagar Config Was missing or corrupted"); }
-            SagarQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
-            MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), true);
+            SagarQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarQuotesCacheFile, new RandomCycleList<SerializeableDiscordMessage>(), true);
+            MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, new RandomCycleList<SerializeableDiscordMessage>(), true);
             SagarReplies = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarResponseFile, GetSagarRepliesTemplate(), true);
             DailyQuoteTracking = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.SagarDailyQuoteFile, new Dictionary<string, SerializeableDiscordMessage>(), true);
             ImageCensors = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.ImageCensors, new Dictionary<ulong, string>(), true);
@@ -114,14 +114,14 @@ namespace DrathBot.MessageHandling
             Console.WriteLine($"Sagarism Initialized ========");
         }
 
-        public static Misc.DistinctList<SagarResponse> GetSagarRepliesTemplate()
+        public static RandomCycleList<SagarResponse> GetSagarRepliesTemplate()
         {
             List<SagarResponse> Responses = new List<SagarResponse>();
             foreach (var i in DataFileUtilities.LoadObjectFromFileOrDefault<string[]>(StaticBotPaths.Sagarism.Files.DefaultResponseFile, Array.Empty<string>(), false))
             {
                 Responses.Add(new SagarResponse(i));
             }
-            return new Misc.DistinctList<SagarResponse>(Responses, 0.7);
+            return new RandomCycleList<SagarResponse>(Responses, 0.7);
         }
 
         public bool HasSentDailyQuote(DateTime Now)

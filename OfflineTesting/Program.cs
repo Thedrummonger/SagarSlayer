@@ -10,16 +10,13 @@ using System.Text;
 using static DrathBot.DataStructure.ExtendedDiscordObjects;
 using static DrathBot.DataStructure.StaticBotPaths.Sagarism;
 using System.Speech.Synthesis;
-using System.Speech.AudioFormat;
 using TDMUtils;
-using DSharpPlus;
-using SagarSlayer.Lib;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        var MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), false);
+        var MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(Files.MiscQuotesCacheFile, new RandomCycleList<SerializeableDiscordMessage>(), false);
         var Users = DiscordUtility.GetAllRelevantUsers(MiscQuotes.Source);
         while (true)
         {
@@ -32,7 +29,7 @@ internal class Program
 
     static void GetNameData()
     {
-        var MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(StaticBotPaths.Sagarism.Files.MiscQuotesCacheFile, new Misc.DistinctList<SerializeableDiscordMessage>(), false);
+        var MiscQuotes = DataFileUtilities.LoadObjectFromFileOrDefault(Files.MiscQuotesCacheFile, new RandomCycleList<SerializeableDiscordMessage>(), false);
         
         var CommonWords = SagarSlayer.Lib.languageLib.GetCommonWords();
         foreach (var discordMessage in MiscQuotes.Source)
@@ -70,8 +67,8 @@ internal class Program
     void SyncUsedWithOldQuoteCache()
     {
         string OldSagarQuotesCacheFile = Path.Combine(Directories.SagarismData, "SagarQuoteCacheOLD.json");
-        var QuoteCache = DataFileUtilities.LoadObjectFromFileOrDefault<Misc.DistinctList<SerializeableDiscordMessage>>(Files.SagarQuotesCacheFile);
-        var OldCache = DataFileUtilities.LoadObjectFromFileOrDefault<Misc.DistinctList<SerializeableDiscordMessage>>(OldSagarQuotesCacheFile);
+        var QuoteCache = DataFileUtilities.LoadObjectFromFileOrDefault<RandomCycleList<SerializeableDiscordMessage>>(Files.SagarQuotesCacheFile);
+        var OldCache = DataFileUtilities.LoadObjectFromFileOrDefault<RandomCycleList<SerializeableDiscordMessage>>(OldSagarQuotesCacheFile);
         QuoteCache.ResetAll();
 
         foreach (var oldUsedQuote in OldCache.Used)

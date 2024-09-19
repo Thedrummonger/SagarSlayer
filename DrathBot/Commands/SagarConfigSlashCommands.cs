@@ -183,14 +183,14 @@ namespace DrathBot.Commands
             List<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> DeserializedQuotes =
                 [.. AllMessages.Select(DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage.FromDiscordMessage).OrderBy(x => x.TimeStamp)];
 
-            SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> CurrentQuoteCache = type switch
+            RandomCycleList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> CurrentQuoteCache = type switch
             {
                 DataStructure.Sagarism.QuoteType.SagarQuote => Program._SagarismClient.SagarQuotes,
                 DataStructure.Sagarism.QuoteType.MiscQuote => Program._SagarismClient.MiscQuotes,
                 _ => throw new Exception($"{type} was not a valid quote type"),
             };
 
-            var NewQuotes = new SagarSlayer.DataStructure.Misc.DistinctList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(DeserializedQuotes, CurrentQuoteCache.refreshDec);
+            var NewQuotes = new RandomCycleList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(DeserializedQuotes, CurrentQuoteCache.refreshDec);
 
             List<int> IndexsToSetUsed = [];
             foreach (var i in CurrentQuoteCache.Used)
