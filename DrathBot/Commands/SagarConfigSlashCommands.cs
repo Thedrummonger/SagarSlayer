@@ -137,16 +137,20 @@ namespace DrathBot.Commands
         {
             await ctx.DeferResponseAsync();
 
+            Console.WriteLine($"Getting all messages from Quote Channel");
+
             DiscordMessage[] AllMessages = type switch
             {
                 DataStructure.Sagarism.QuoteType.SagarQuote => await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetSagarQuotesChannel()),
                 DataStructure.Sagarism.QuoteType.MiscQuote => await DiscordUtility.GetAllMessagesInChannel(Program._SagarismClient.SagarConfig.DiscordData.GetMiscQuotesChannel()),
                 _ => throw new Exception($"{type} was not a valid quote type"),
             };
-            Console.WriteLine($"Got {AllMessages.Length} Total Messages");
+            Console.WriteLine($"Got {AllMessages.Length} Total Messages From Channel");
 
             List<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> DeserializedQuotes =
                 [.. AllMessages.Select(DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage.FromDiscordMessage).OrderBy(x => x.TimeStamp)];
+
+            Console.WriteLine($"Deserialized {DeserializedQuotes.Count} Messages to SerializeableDiscordMessage");
 
             RandomCycleList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage> CurrentQuoteCache = type switch
             {
@@ -155,7 +159,11 @@ namespace DrathBot.Commands
                 _ => throw new Exception($"{type} was not a valid quote type"),
             };
 
+            Console.WriteLine($"Current Quote Cache had {CurrentQuoteCache.Source.Count} Messages");
+
             var NewQuotes = new RandomCycleList<DataStructure.ExtendedDiscordObjects.SerializeableDiscordMessage>(DeserializedQuotes, CurrentQuoteCache.refreshDec);
+
+            Console.WriteLine($"Created New Quote Cache {NewQuotes.Source.Count} Messages");
 
             List<int> IndexsToSetUsed = [];
             foreach (var i in CurrentQuoteCache.Used)
@@ -164,6 +172,7 @@ namespace DrathBot.Commands
                 if (NewEntry is null) { continue; }
                 IndexsToSetUsed.Add(NewQuotes.Unused.IndexOf(NewEntry));
             }
+            Console.WriteLine($"Setting {IndexsToSetUsed.Count} Messages used");
             NewQuotes.SetMessagesUsed(IndexsToSetUsed);
 
             switch (type)
@@ -177,6 +186,7 @@ namespace DrathBot.Commands
                 default:
                     throw new Exception($"{type} was not a valid quote type");
             }
+            Console.WriteLine($"Overrode Program Quotes");
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Got {NewQuotes.Source.Count} Messages"));
         }
