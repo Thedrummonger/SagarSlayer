@@ -64,7 +64,7 @@ namespace DrathBot.DataStructure
             public string APIKey = APIKEY;
             private bool ClientBuilt = false;
             private DiscordClient? Client;
-            private DiscordClientBuilder Builder = DiscordClientBuilder.CreateDefault(APIKEY, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+            private DiscordClientBuilder Builder = DiscordClientBuilder.CreateDefault(APIKEY, DiscordIntents.All);
 
             public DiscordClient Build()
             {

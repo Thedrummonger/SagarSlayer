@@ -62,6 +62,16 @@ namespace DrathBot
 
             await _DiscordBot.GetClient().ConnectAsync();
 
+            var GlobalCommands = await _DiscordBot.GetClient().GetGlobalApplicationCommandsAsync();
+            await _DiscordBot.GetClient().BulkOverwriteGlobalApplicationCommandsAsync(GlobalCommands);
+            if (!IsDebug)
+            {
+                var ProdGuildCommands = await _DiscordBot.GetClient().GetGuildApplicationCommandsAsync(_SagarismClient.SagarConfig.DiscordData.ProdServer.ServerID);
+                await _DiscordBot.GetClient().BulkOverwriteGuildApplicationCommandsAsync(_SagarismClient.SagarConfig.DiscordData.ProdServer.ServerID, ProdGuildCommands);
+            }
+            var TestGuildCommands = await _DiscordBot.GetClient().GetGuildApplicationCommandsAsync(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID);
+            await _DiscordBot.GetClient().BulkOverwriteGuildApplicationCommandsAsync(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID, TestGuildCommands);
+
             await Task.Delay(-1);
 
         }
