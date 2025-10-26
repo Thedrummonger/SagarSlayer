@@ -76,8 +76,11 @@ namespace DrathBot
 
         }
 
+        private static bool SessionCreated = false;
         private static Task Client_SessionCreated(DiscordClient sender, DSharpPlus.EventArgs.SessionCreatedEventArgs args)
         {
+            if (SessionCreated) { return Task.CompletedTask; ; }
+            SessionCreated = true;
             Console.WriteLine($"Bot is Live");
             Console.WriteLine($"Connecting as {_DiscordBot.GetClient().CurrentUser.Username}({_DiscordBot.GetClient().CurrentUser.Id})");
             _DiscordBot.BotIsLive = true;
