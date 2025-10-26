@@ -72,7 +72,7 @@ namespace DrathBot
             var TestGuildCommands = await _DiscordBot.GetClient().GetGuildApplicationCommandsAsync(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID);
             await _DiscordBot.GetClient().BulkOverwriteGuildApplicationCommandsAsync(_SagarismClient.SagarConfig.DiscordData.TestServer.ServerID, TestGuildCommands);
 
-            await Task.Delay(-1);
+            CommandLoop();
 
         }
 
@@ -93,6 +93,19 @@ namespace DrathBot
             if (!Directory.Exists(DataStructure.StaticBotPaths.AppDataFolder))
             {
                 Directory.CreateDirectory(DataStructure.StaticBotPaths.AppDataFolder);
+            }
+        }
+
+        private static void CommandLoop()
+        {
+            while (true)
+            {
+                switch (Console.ReadLine()?.ToLower())
+                {
+                    case "exit": return;
+                    case "time": Console.WriteLine(DateTime.Now); break;
+                    case "daily": Console.WriteLine(_SagarismClient.HasSentDailyQuote(DateTime.Now)); break;
+                }
             }
         }
     }

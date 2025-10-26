@@ -43,7 +43,7 @@ namespace DrathBot.DataStructure
                 SerializeableDiscordMessage Smessage = new SerializeableDiscordMessage();
                 Smessage.MessageID = message.Id;
                 Smessage.ChannelId = message.ChannelId;
-                Smessage.AuthorID = message.Author.Id;
+                Smessage.AuthorID = message.Author?.Id??ulong.MinValue;
                 Smessage.Content = message.Content;
                 Smessage.Link = message.JumpLink;
                 Smessage.TimeStamp = message.Timestamp;

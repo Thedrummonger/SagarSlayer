@@ -21,16 +21,13 @@ namespace DrathBot.MessageHandling
         public static void Parse(ExtendedDiscordObjects.RecievedMessage Message)
         {
             var SagarData = Program._SagarismClient.SagarConfig.DiscordData;
-            if (Message.Server is null)
-            {
 
-            }
-            else
-            {
-                if (Message.Server.Id.In(SagarData.ProdServer.ServerID, SagarData.TestServer.ServerID)) { Program._SagarismClient.ReplyToSagar(Message); }
-                if (Message.Channel.Id.In(SagarData.GetSagarQuotesChannel())) { Program._SagarismClient.AddSagarQuote(Message); }
-                if (Message.Channel.Id.In(SagarData.GetMiscQuotesChannel())) { Program._SagarismClient.AddMiscQuote(Message); }
-            }
+            if (Message.Channel.Id.In(SagarData.GetSagarQuotesChannel()))
+                Program._SagarismClient.AddSagarQuote(Message);
+            else if (Message.Channel.Id.In(SagarData.GetMiscQuotesChannel()))
+                Program._SagarismClient.AddMiscQuote(Message);
+            else if (Message.Server is not null && Message.Server.Id.In(SagarData.ProdServer.ServerID, SagarData.TestServer.ServerID)) 
+                Program._SagarismClient.ReplyToSagar(Message);
         }
     }
 }
